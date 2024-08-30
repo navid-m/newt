@@ -9,12 +9,18 @@ import os
 import strutils
 
 
+var GlobalBody: JsonNode
+
+
 # Make an innertube request
 proc innertubeRequest(
     endpoint: string,
     body: JsonNode,
     clientContext: JsonNode
   ): JsonNode =
+
+  GlobalBody = body
+
   let url = fmt"https://www.youtube.com/youtubei/v1/{endpoint}?key={APIKey}"
   let client = newHttpClient()
 
@@ -24,7 +30,7 @@ proc innertubeRequest(
   echo "ENDPOINT: ", endpoint, "\n\n"
 
   # Ensure headers are properly set
-  client.headers.add("User-Agent", clientContext["client"]["userAgent"].getStr())
+  client.headers.add("User-Agent", Agent)
   client.headers.add("Accept", "application/json")
   client.headers.add("Content-Type", "application/json")
 
@@ -93,8 +99,24 @@ proc downloadFile(url: string, outputPath: string) =
   let client = newHttpClient()
 
   try:
-    let content = client.getContent(url)
-    writeFile(outputPath, content)
+    client.headers.add(
+      "User-Agent", DownloaderAgent,
+    )
+
+    var fullBody = %*{
+      "context": DownloaderClientContext
+    }
+
+    for k, v in GlobalBody.pairs:
+      fullBody[k] = v
+
+    echo url
+    echo $fullBody
+
+    let content = client.postContent(url, $fullBody)
+
+    echo content
+    #writeFile(outputPath, content)
   except HttpRequestError as e:
     echo "Error downloading file: ", e.msg
     quit(1)
