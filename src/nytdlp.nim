@@ -1,6 +1,7 @@
 import std/uri
 import std/net
 import nytdlp/consts
+import nytdlp/texts
 import httpclient
 import json
 import strformat
@@ -27,29 +28,23 @@ proc innertubeRequest(
   client.headers.add("Accept", "application/json")
   client.headers.add("Content-Type", "application/json")
 
-  echo "CLIENT HEADERS", client.headers
-
-  # Adjust the context key to correctly reference "client"
   var fullBody = %*{
-    "context": clientContext # Use clientContext directly instead of clientContext["context"]
+    "context": clientContext
   }
 
-  # Add other body parameters
   for k, v in body.pairs:
     fullBody[k] = v
-
-  echo "FULL BODY", fullBody
 
   var response: string
 
   try:
-    # Convert JSON to string and make the POST request
     response = client.postContent(url, $fullBody)
   except HttpRequestError as e:
     echo "Error making Innertube request: ", e.msg
     quit(1)
 
   return parseJson(response)
+
 
 # Get video info using the Innertube API
 proc getVideoInfo(videoId: string): JsonNode =
@@ -59,26 +54,38 @@ proc getVideoInfo(videoId: string): JsonNode =
   return innertubeRequest("player", body, ClientContext)
 
 
-# Extract video and audio stream URLs
-proc extractStreams(videoInfo: JsonNode): (JsonNode, JsonNode) =
-  var videoStream: JsonNode = nil
-  var audioStream: JsonNode = nil
+# Extract DL from JSON response
+proc extractDownloadLink(signatureCipher: string): string =
+  var urlParam: string = ""
+  for param in signatureCipher.split('&'):
+    if param.startsWith("url="):
+      urlParam = param
+      break
+
+  if urlParam.len() == 0 or urlParam.len() < 5:
+    raise newException(ValueError, "URL parameter not found in signature cipher")
+
+  return decodeUrl(urlParam.split('=')[1].replace("url=", ""))
+
+
+# Extract the highest quality audio/video stream based on the parameter
+proc extractHighestStream(videoInfo: JsonNode, isAudio: bool = true): JsonNode =
+  var bestStream: JsonNode = nil
+  var highestBitrate = 0
 
   for stream in videoInfo["streamingData"]["adaptiveFormats"].items:
     let mimeType = stream["mimeType"].getStr()
-    if mimeType.startsWith("video/") and stream.hasKey("bitrate"):
-      if videoStream.isNil or (stream["bitrate"].getInt() > videoStream[
-          "bitrate"].getInt()):
-        videoStream = stream
-    elif mimeType.startsWith("audio/"):
-      if audioStream.isNil or (stream["bitrate"].getInt() > audioStream[
-          "bitrate"].getInt()):
-        audioStream = stream
+    if (isAudio and mimeType.startsWith("audio/")) or
+       (not isAudio and mimeType.startsWith("video/") and stream.hasKey("bitrate")):
+      let bitrate = stream["bitrate"].getInt()
+      if bitrate > highestBitrate:
+        highestBitrate = bitrate
+        bestStream = stream
 
-  if videoStream.isNil or audioStream.isNil:
-    raise newException(ValueError, "No valid video/audio streams found")
+  if bestStream.isNil:
+    raise newException(ValueError, "No suitable stream found")
 
-  return (videoStream, audioStream)
+  return bestStream
 
 
 # Download the fucking thing
@@ -92,10 +99,6 @@ proc downloadFile(url: string, outputPath: string) =
     quit(1)
 
 
-proc extractVideoId(url: string): string =
-  result = url.split("=")[^1]
-
-
 # Run the CLI
 proc main() =
   if paramCount() < 1:
@@ -103,21 +106,14 @@ proc main() =
     quit(1)
 
   let url = if paramCount() == 2: paramStr(2) else: paramStr(1)
-  let videoId = extractVideoId(url)
-  let videoInfo = getVideoInfo(videoId)
+  let isAudio = paramCount() == 1 or paramStr(1) == "-a"
+  let stream = extractHighestStream(getVideoInfo(extractVideoId(url)), isAudio)
+  let downloadUrl = extractDownloadLink(stream["signatureCipher"].getStr())
 
-  echo "Video Info: ", videoInfo
-
-  let (videoStream, audioStream) = extractStreams(videoInfo)
-
-  if paramCount() == 1 or paramStr(1) == "-a":
-    downloadFile(audioStream["url"].getStr(), "output.opus")
-  elif paramStr(1) == "-v":
-    downloadFile(videoStream["url"].getStr(), "output.mp4")
+  if isAudio:
+    downloadFile(downloadUrl, "output.opus")
   else:
-    echo "Invalid option provided."
-    echo "Usage: nytdlp [-v|-a] <YouTube video URL>"
-    quit(1)
+    downloadFile(downloadUrl, "output.mp4")
 
   echo "Downloaded to current directory."
 
