@@ -86,7 +86,7 @@ proc main() =
     quit(1)
 
   let videoInfo = getVideoInfo(paramStr(1).split("=")[^1])
-  let videoFile = "video.mp4"
+  let videoFile = "raw_video.mp4"
 
   downloadVideo(extractVideoUrl(videoInfo), videoFile)
 
