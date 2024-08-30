@@ -1,11 +1,13 @@
+import std/uri
+import std/net
+
 import httpclient
 import json
 import strformat
 import os
 import strutils
 import random
-import std/uri
-import std/net
+
 
 # Generate random agent
 proc randomUserAgent(): string =
@@ -18,7 +20,7 @@ proc randomUserAgent(): string =
   ])
 
 # Get video info using API
-proc getVideoInfo(videoId: string, invidiousInstanceUrl: string = "iv.ggtyler.dev"): JsonNode =
+proc getVideoInfo(videoId: string, invidiousInstanceUrl: string = "invidious.perennialte.ch"): JsonNode =
   let client = newHttpClient()
   let userAgentToUse = randomUserAgent()
 
@@ -51,7 +53,7 @@ proc downloadVideo(url: string, outputPath: string) =
   let client = newHttpClient(userAgent = randomUserAgent())
 
   client.headers.add("Accept", "*/*")
-  client.headers.add("Referer", "http://iv.ggtyler.dev/")
+  client.headers.add("Referer", "http://google.com.bz/")
   client.headers.add("Accept-Language", "en-US,en;q=0.9")
 
   var videoContent: string
@@ -70,7 +72,7 @@ proc mergeAudioAndVideo(
     audioPath: string,
     outputPath: string
   ) =
-  discard execShellCmd(fmt"ffmpeg -i {videoPath} -i {audioPath} -c copy {outputPath}")
+  discard execShellCmd(fmt"ffmpeg -i {videoPath} -i {audioPath} -c copy {outputPath} -hide_banner -loglevel error")
 
 # Run the CLI
 proc main() =
