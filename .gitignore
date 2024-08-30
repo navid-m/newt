@@ -8,3 +8,4 @@ htmldocs/
 *.opus
 *.aac
 .vscode
+*.json
