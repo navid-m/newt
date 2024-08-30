@@ -21,7 +21,7 @@ proc innertubeRequest(
   echo "URL: ", url
   echo "BODY: ", body
   echo "CLIENTCONTEXT: ", clientContext
-  echo "ENDPOINT: ", endpoint
+  echo "ENDPOINT: ", endpoint, "\n\n"
 
   # Ensure headers are properly set
   client.headers.add("User-Agent", clientContext["client"]["userAgent"].getStr())
@@ -91,6 +91,7 @@ proc extractHighestStream(videoInfo: JsonNode, isAudio: bool = true): JsonNode =
 # Download the fucking thing
 proc downloadFile(url: string, outputPath: string) =
   let client = newHttpClient()
+
   try:
     let content = client.getContent(url)
     writeFile(outputPath, content)
