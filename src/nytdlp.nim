@@ -9,7 +9,7 @@ import strutils
 
 
 # Get video info using API
-proc getVideoInfo(videoId: string, invidiousInstanceUrl: string = "invidious.perennialte.ch"): JsonNode =
+proc getVideoInfo(videoId: string, invidiousInstanceUrl: string = randomIvInstance()): JsonNode =
   let client = newHttpClient()
   let userAgentToUse = randomUserAgent()
 
@@ -86,15 +86,15 @@ proc main() =
     echo "Usage: nytdlp [-v|-a] <YouTube video URL>"
     quit(1)
 
+  let url = if paramCount() == 2: paramStr(2) else: paramStr(1)
+
   var extractedVideoId: seq[string]
 
-  try:
-    extractedVideoId = paramStr(2).split("=")
-  except:
-    extractedVideoId = paramStr(1).split("=")
+  extractedVideoId = url.split("=")
+
+  let videoInfo = getVideoInfo(extractedVideoId[^1])
 
   echo extractedVideoId
-  let videoInfo = getVideoInfo(extractedVideoId[^1])
   echo videoInfo
 
   if paramCount() == 1 or paramStr(1) == "-a":
