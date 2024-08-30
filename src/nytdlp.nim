@@ -102,7 +102,9 @@ proc downloadFile(url: string, outputPath: string) =
     client.headers.add(
       "User-Agent", DownloaderAgent,
     )
-
+    client.headers.add("Accept", "application/octet-stream")
+    client.headers.add("Content-Type", "application/json")
+    client.headers.add("Range", "bytes=0-")
     var fullBody = %*{
       "context": DownloaderClientContext
     }
@@ -110,10 +112,12 @@ proc downloadFile(url: string, outputPath: string) =
     for k, v in GlobalBody.pairs:
       fullBody[k] = v
 
-    echo url
-    echo $fullBody
+    echo "Endpoint:\n", url
+    echo "\n\nBody:\n", $fullBody
+    echo "\n\nClient headers:\n", client.headers
+    echo "\n\nPayload:\n", decodeUrl(url), $fullbody, "\n\n"
 
-    let content = client.postContent(url, $fullBody)
+    let content = client.postContent(decodeUrl(url), $fullBody)
 
     echo content
     #writeFile(outputPath, content)
