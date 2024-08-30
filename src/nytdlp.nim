@@ -17,6 +17,7 @@ proc innertubeRequest(
   let url = fmt"https://www.youtube.com/youtubei/v1/{endpoint}?key={APIKey}"
   let client = newHttpClient()
 
+  echo "URL: ", url
   echo "BODY: ", body
   echo "CLIENTCONTEXT: ", clientContext
   echo "ENDPOINT: ", endpoint
@@ -26,26 +27,29 @@ proc innertubeRequest(
   client.headers.add("Accept", "application/json")
   client.headers.add("Content-Type", "application/json")
 
-  # Merge the client context with the request body
-  # Create a new JSON object that combines the body and the context
+  echo "CLIENT HEADERS", client.headers
+
+  # Adjust the context key to correctly reference "client"
   var fullBody = %*{
-    "context": clientContext["context"]
+    "context": clientContext # Use clientContext directly instead of clientContext["context"]
   }
 
+  # Add other body parameters
   for k, v in body.pairs:
     fullBody[k] = v
+
+  echo "FULL BODY", fullBody
 
   var response: string
 
   try:
-    # Convert JSON to string
+    # Convert JSON to string and make the POST request
     response = client.postContent(url, $fullBody)
   except HttpRequestError as e:
     echo "Error making Innertube request: ", e.msg
     quit(1)
 
   return parseJson(response)
-
 
 # Get video info using the Innertube API
 proc getVideoInfo(videoId: string): JsonNode =
