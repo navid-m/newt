@@ -1,6 +1,5 @@
 import std/uri
 import std/net
-
 import httpclient
 import json
 import strformat
@@ -19,6 +18,7 @@ proc randomUserAgent(): string =
     "Mozilla/5.0 (iPhone; CPU iPhone OS 15_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Mobile/15E148 Safari/604.1"
   ])
 
+
 # Get video info using API
 proc getVideoInfo(videoId: string, invidiousInstanceUrl: string = "invidious.perennialte.ch"): JsonNode =
   let client = newHttpClient()
@@ -32,6 +32,7 @@ proc getVideoInfo(videoId: string, invidiousInstanceUrl: string = "invidious.per
   client.headers.add("Accept-Language", "en-US,en;q=0.9")
 
   var response: string
+
   try:
     response = client.getContent(fmt"http://{invidiousInstanceUrl}/api/v1/videos/{encodeUrl(videoId)}")
   except HttpRequestError as e:
@@ -40,6 +41,7 @@ proc getVideoInfo(videoId: string, invidiousInstanceUrl: string = "invidious.per
 
   return parseJson(response)
 
+
 # Get the video URL from the JSON node
 proc extractVideoUrl(videoInfo: JsonNode): string =
   for stream in videoInfo["adaptiveFormats"].items:
@@ -47,6 +49,7 @@ proc extractVideoUrl(videoInfo: JsonNode): string =
       return stream["url"].getStr()
 
   raise newException(ValueError, "No valid video URL found")
+
 
 # Download the fucking thing
 proc downloadVideo(url: string, outputPath: string) =
@@ -66,6 +69,7 @@ proc downloadVideo(url: string, outputPath: string) =
 
   writeFile(outputPath, videoContent)
 
+
 # Mix video and audio files using ffmpeg
 proc mergeAudioAndVideo(
     videoPath: string,
@@ -73,6 +77,7 @@ proc mergeAudioAndVideo(
     outputPath: string
   ) =
   discard execShellCmd(fmt"ffmpeg -i {videoPath} -i {audioPath} -c copy {outputPath} -hide_banner -loglevel error")
+
 
 # Run the CLI
 proc main() =
@@ -99,5 +104,6 @@ proc main() =
 
   else:
     echo "(Video does not have a separate audio stream)"
+
 
 main()
