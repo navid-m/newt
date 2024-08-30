@@ -1,0 +1,10 @@
+nimcache/
+nimblecache/
+htmldocs/
+*.m4a
+*.exe
+*.o
+*.mp4
+*.opus
+*.aac
+.vscode
