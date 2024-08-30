@@ -1,5 +1,6 @@
 import random
 
+
 # Generate random agent
 proc randomUserAgent*(): string =
   result = sample(@[
