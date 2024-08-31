@@ -107,7 +107,6 @@ proc downloadContentViaInner*(url: string, outputPath: string, isAudio: bool) =
     for k, v in GlobalBody.pairs:
       fullBody[k] = v
 
-
     let infoAsJson: JsonNode = getVideoInfo(url)
 
     echo "Endpoint:\n", url
@@ -124,8 +123,6 @@ proc downloadContentViaInner*(url: string, outputPath: string, isAudio: bool) =
 
     client.downloadFile(bestStreamUrl, fmt"output.{extension}")
 
-
   except HttpRequestError as e:
     echo "Error downloading file: ", e.msg
     quit(1)
-
