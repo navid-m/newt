@@ -1,121 +1,90 @@
-import ../primitives/consts
-import std/uri
-import std/net
 import httpclient
 import json
 import strformat
 import strutils
+import ../primitives/randoms
 
 
-var GlobalBody: JsonNode
+# Constants for InnerTube API
+const INNERTUBE_API_URL = "https://www.youtube.com/youtubei/v1/player"
+const INNERTUBE_API_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+const INNERTUBE_CLIENT_NAME = "WEB"
+const INNERTUBE_CLIENT_VERSION = "2.20210621.00.00"
 
 
-# Make an innertube request
-proc innertubeRequest(
-    endpoint: string,
-    body: JsonNode,
-  ): JsonNode =
-
-  GlobalBody = body
-
-  let url = fmt"https://www.youtube.com/youtubei/v1/{endpoint}?key={APIKey}"
-  let client = newHttpClient()
-
-  echo "URL: ", url
-  echo "BODY: ", body
-  echo "CLIENTCONTEXT: ", ClientContext
-  echo "ENDPOINT: ", endpoint, "\n\n"
-
-  client.headers.add("User-Agent", Agent)
-  client.headers.add("Accept", "application/json")
-  client.headers.add("Content-Type", "application/json")
-
-  var fullBody = %*{
-    "context": ClientContext
+# Build InnerTube API request payload
+proc buildInnertubePayload(videoId: string): JsonNode =
+  return %*{
+    "context": {
+      "client": {
+        "clientName": INNERTUBE_CLIENT_NAME,
+        "clientVersion": INNERTUBE_CLIENT_VERSION
+    }
+  },
+    "videoId": videoId
   }
 
-  for k, v in body.pairs:
-    fullBody[k] = v
+
+# Get video info using InnerTube API
+proc getVideoInfo(videoId: string): JsonNode =
+  let client = newHttpClient()
+  let userAgentToUse = randomUserAgent()
+
+  client.headers = newHttpHeaders(titleCase = true)
+  client.headers.add("User-Agent", userAgentToUse)
+  client.headers.add("Content-Type", "application/json")
+  client.headers.add("Accept", "application/json")
 
   var response: string
 
   try:
-    response = client.postContent(url, $fullBody)
+    let url = fmt"{INNERTUBE_API_URL}?key={INNERTUBE_API_KEY}"
+    let payload = buildInnertubePayload(videoId)
+    response = client.postContent(url, $payload)
   except HttpRequestError as e:
-    echo "Error making Innertube request: ", e.msg
+    echo "Error fetching video info: ", e.msg
     quit(1)
 
   return parseJson(response)
 
 
-# Get video info using the Innertube API
-proc getVideoInfo(videoId: string): JsonNode =
-  let body = %*{
-    "videoId": videoId
-  }
-  return innertubeRequest("player", body)
-
-
-# Extract DL from JSON response
-proc extractDownloadLink(signatureCipher: string): string =
-  var urlParam: string = ""
-  for param in signatureCipher.split('&'):
-    if param.startsWith("url="):
-      urlParam = param
-      break
-
-  if urlParam.len() == 0:
-    raise newException(ValueError, "URL parameter not found in signature cipher")
-
-  return decodeUrl(urlParam.split('=')[1])
-
-
-# Extract the highest quality audio/video stream based on the parameter
-proc extractHighestStream(videoInfo: JsonNode, isAudio: bool): JsonNode =
+# Get highest quality video stream.
+proc getVideo(videoInfo: JsonNode): JsonNode =
   var bestStream: JsonNode = nil
-  var highestBitrate = 0
-
   for stream in videoInfo["streamingData"]["adaptiveFormats"].items:
-    let mimeType = stream["mimeType"].getStr()
-    if (isAudio and mimeType.startsWith("audio/")) or
-       (not isAudio and mimeType.startsWith("video/") and stream.hasKey("bitrate")):
-      let bitrate = stream["bitrate"].getInt()
-      if bitrate > highestBitrate:
-        highestBitrate = bitrate
+    if stream["mimeType"].getStr().startsWith("video/") and stream.hasKey("audioQuality"):
+      if bestStream.isNil or (stream["bitrate"].getInt() > bestStream[
+          "bitrate"].getInt()):
         bestStream = stream
-
   if bestStream.isNil:
-    raise newException(ValueError, "No suitable stream found")
+    raise newException(ValueError, "No video found")
+  return bestStream
 
+
+# Get highest quality audio stream.
+proc getAudio(videoInfo: JsonNode): JsonNode =
+  var bestStream: JsonNode = nil
+  for stream in videoInfo["streamingData"]["adaptiveFormats"].items:
+    if stream["mimeType"].getStr().startsWith("audio/"):
+      if bestStream.isNil or (stream["bitrate"].getInt() > bestStream[
+          "bitrate"].getInt()):
+        bestStream = stream
+  if bestStream.isNil:
+    raise newException(ValueError, "No audio found")
   return bestStream
 
 
 # Download
 proc downloadInnerStream*(url: string, isAudio: bool) =
-  let client = newHttpClient()
   try:
-    client.headers.add("User-Agent", DownloaderAgent)
-    client.headers.add("Connection", "keep-alive")
-    client.headers.add("Origin", "https://youtube.com")
-
-    var fullBody = %*{
-      "context": DownloaderClientContext
-    }
-
-    let infoAsJson: JsonNode = getVideoInfo(url)
-
-    for k, v in GlobalBody.pairs:
-      fullBody[k] = v
-
-    let highestQualStreamInfo: JsonNode = extractHighestStream(infoAsJson, isAudio)
-    let bestStreamUrl = extractDownloadLink(highestQualStreamInfo.getStr("signatureCipher"))
-    var extension = "webm"
-
+    let extractedVideoId = url.split("=")
+    let videoId = extractedVideoId[^1]
+    let videoInfo = getVideoInfo(videoId)
     if (isAudio):
-      extension = "opus"
+      echo getAudio(videoInfo)
+    else:
+      echo getVideo(videoInfo)
 
-    client.downloadFile(bestStreamUrl, fmt"output.{extension}")
-
-  except HttpRequestError as e:
-    echo "Error downloading file: ", e.msg
+  except CatchableError as e:
+    echo "Error here: ", e.msg
     quit(1)
