@@ -14,7 +14,6 @@ var GlobalBody: JsonNode
 proc innertubeRequest(
     endpoint: string,
     body: JsonNode,
-    clientContext: JsonNode
   ): JsonNode =
 
   GlobalBody = body
@@ -24,7 +23,7 @@ proc innertubeRequest(
 
   echo "URL: ", url
   echo "BODY: ", body
-  echo "CLIENTCONTEXT: ", clientContext
+  echo "CLIENTCONTEXT: ", ClientContext
   echo "ENDPOINT: ", endpoint, "\n\n"
 
   client.headers.add("User-Agent", Agent)
@@ -32,7 +31,7 @@ proc innertubeRequest(
   client.headers.add("Content-Type", "application/json")
 
   var fullBody = %*{
-    "context": clientContext
+    "context": ClientContext
   }
 
   for k, v in body.pairs:
@@ -54,7 +53,7 @@ proc getVideoInfo(videoId: string): JsonNode =
   let body = %*{
     "videoId": videoId
   }
-  return innertubeRequest("player", body, ClientContext)
+  return innertubeRequest("player", body)
 
 
 # Extract DL from JSON response
@@ -108,17 +107,8 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
     for k, v in GlobalBody.pairs:
       fullBody[k] = v
 
-    echo "Endpoint:\n", url
-    echo "\n\nBody:\n", $fullBody
-    echo "\n\nClient headers:\n", client.headers
-    echo "\n\nGetting EXTRACT info...\n"
-
     let highestQualStreamInfo: JsonNode = extractHighestStream(infoAsJson, isAudio)
-
-    echo "Getting BEST info...\n\n"
-
     let bestStreamUrl = extractDownloadLink(highestQualStreamInfo.getStr("signatureCipher"))
-
     var extension = "webm"
 
     if (isAudio):

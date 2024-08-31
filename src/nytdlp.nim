@@ -14,8 +14,9 @@ proc main() =
 
   try:
     downloadInnerStream(url, isAudio)
-  except:
+  except CatchableError:
     echo "Falling back to IV, as Innertube request failed. Only video can be downloaded this way"
+    echo "Details: ", getCurrentException().msg
     downloadIvStream(url)
 
 
