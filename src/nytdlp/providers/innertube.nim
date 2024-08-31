@@ -2,7 +2,8 @@ import
   httpclient,
   json,
   strformat,
-  strutils
+  strutils,
+  streams
 
 import ../primitives/randoms
 
@@ -98,7 +99,6 @@ proc getAudio(videoInfo: JsonNode): JsonNode =
 
   return bestStream
 
-
 proc downloadStream(
     client: HttpClient,
     downloadUrl: string,
@@ -120,13 +120,30 @@ proc downloadStream(
       "CONSENT=YES+cb.20210328-17-p0.en+FX+" & randomConsentID()
     )
 
-    # Really, REALLY slow...eventually fails after getting 150KB...
-    # Need to download in chunks.
-    client.downloadFile(downloadUrl, outputPath)
+    var outputStream = newFileStream(outputPath, fmWrite)
 
+    if outputStream == nil:
+      raise newException(IOError, "Unable to open output file")
+
+    defer: outputStream.close()
+
+    var totalBytesRead: int64 = 0
+    const chunkSize = 8192
+
+    let response = client.request(downloadUrl, HttpGet)
+    var buffer = newString(chunkSize)
+
+    while true:
+      let bytesRead = response.bodyStream.readData(addr(buffer[0]), chunkSize)
+      if bytesRead <= 0:
+        break
+      outputStream.writeData(addr(buffer[0]), bytesRead)
+      totalBytesRead += bytesRead
+      echo fmt"Downloaded {totalBytesRead} bytes"
     echo fmt"Downloaded stream to {outputPath}"
   except HttpRequestError as e:
     echo "Error downloading stream: ", e.msg
+
 
 
 proc downloadInnerStream*(url: string, isAudio: bool) =
