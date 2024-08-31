@@ -3,10 +3,19 @@ import
   json,
   strformat,
   strutils,
-  streams
+  streams,
+  asyncdispatch,
+  os,
+  threadpool,
+  asyncfutures
 
 import ../primitives/randoms
 
+type
+  DownloadChunk = object
+    start: int
+    ender: int
+    data: string
 
 # Constants for InnerTube API
 const INNERTUBE_API_URL = "https://www.youtube.com/youtubei/v1/player"
@@ -99,17 +108,31 @@ proc getAudio(videoInfo: JsonNode): JsonNode =
 
   return bestStream
 
+
+proc downloadChunk(url: string, start, ender: int): DownloadChunk =
+  ## Download a chunk
+  let client = newHttpClient()
+  client.headers = newHttpHeaders({
+    "Accept-Language": "en-US,en;q=0.9",
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "cross-site",
+    "Referer": "https://youtube.com",
+    "Range": fmt"bytes={start}-{ender}",
+    "Cookie": "CONSENT=YES+cb.20210328-17-p0.en+FX+" & randomConsentID()
+  })
+  let response = client.get(url)
+  result = DownloadChunk(start: start, ender: ender, data: response.body)
+
 proc downloadStream(
-    client: HttpClient,
     downloadUrl: string,
     outputPath: string
 ) =
-  ## Download the stream using the same HttpClient for authenticated access.
+  ## Download the whole stream
   try:
     echo "Downloading: " & downloadUrl & " to " & outputPath
 
-    client.timeout = 4200
-
+    let client = newHttpClient()
     client.headers = newHttpHeaders({
       "Accept-Language": "en-US,en;q=0.9",
       "Sec-Fetch-Dest": "empty",
@@ -119,31 +142,42 @@ proc downloadStream(
       "Cookie": "CONSENT=YES+cb.20210328-17-p0.en+FX+" & randomConsentID()
     })
 
+    # Get the total file size
+    client.headers.add("Range", "bytes=0-0")
+    let headResponse = client.head(downloadUrl)
+    let contentLength = parseInt(headResponse.headers["Content-Range"].split(
+        "/")[1])
+
+    const chunkSize = 1024 * 1024 * 5
+    let numChunks = (contentLength div chunkSize) + 1
+    var chunks: seq[FlowVar[DownloadChunk]]
+
+    for i in 0 ..< numChunks:
+      let start = i * chunkSize
+      var ender = (i + 1) * chunkSize - 1
+      if ender >= contentLength:
+        ender = contentLength - 1
+
+      chunks.add(spawn downloadChunk(downloadUrl, start, ender))
+
     var outputStream = newFileStream(outputPath, fmWrite)
     if outputStream == nil:
       raise newException(IOError, "Unable to open output file")
 
     defer: outputStream.close()
 
-    var totalBytesRead: int64 = 0
-    const chunkSize = 8192 * 10
+    var totalBytesWritten: int64 = 0
 
-    var buffer = newString(chunkSize)
-
-    client.onProgressChanged = proc (total, progress, speed: BiggestInt) =
-      echo fmt"Downloaded {progress}/{total} bytes ({(progress.float / total.float * 100):0.2f}%) at {speed/1000:0.2f} KB/s"
-
-    var response = client.request(downloadUrl)
-    while not response.bodyStream.atEnd():
-      let bytesRead = response.bodyStream.readData(addr(buffer[0]), chunkSize)
-      if bytesRead <= 0:
-        break
-      outputStream.writeData(addr(buffer[0]), bytesRead)
-      totalBytesRead += bytesRead
+    for chunkFv in chunks:
+      let chunk = ^chunkFv
+      outputStream.write(chunk.data)
+      totalBytesWritten += chunk.data.len
+      echo fmt"Downloaded {totalBytesWritten}/{contentLength} bytes ({(totalBytesWritten.float / contentLength.float * 100):0.2f}%)"
 
     echo fmt"Downloaded stream to {outputPath}"
   except HttpRequestError as e:
     echo "Error downloading stream: ", e.msg
+
 
 proc downloadInnerStream*(url: string, isAudio: bool) =
   ## Main download procedure
@@ -155,18 +189,13 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
   if videoInfo.isNil:
     raise newException(ValueError, "Failed to retrieve video information")
 
-  client.headers.del("Accept")
-  client.headers.add("Accept", "application/octet-stream")
-  client.headers.add("Content-Disposition", "attachment")
-
   var downloadUrl: string
 
   if isAudio:
     let audioInfo = getAudio(videoInfo)
     downloadUrl = audioInfo["url"].getStr()
-    downloadStream(client, downloadUrl, "audio.weba")
-
+    downloadStream(downloadUrl, "audio.weba")
   else:
     let videoInfo = getVideo(videoInfo)
     downloadUrl = videoInfo["url"].getStr()
-    downloadStream(client, downloadUrl, "video.webm")
+    downloadStream(downloadUrl, "video.webm")
