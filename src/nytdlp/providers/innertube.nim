@@ -4,18 +4,17 @@ import
   strformat,
   strutils,
   streams,
-  asyncdispatch,
-  os,
-  threadpool,
-  asyncfutures
+  threadpool
 
 import ../primitives/randoms
+
 
 type
   DownloadChunk = object
     start: int
     ender: int
     data: string
+
 
 # Constants for InnerTube API
 const INNERTUBE_API_URL = "https://www.youtube.com/youtubei/v1/player"
@@ -124,6 +123,7 @@ proc downloadChunk(url: string, start, ender: int): DownloadChunk =
   let response = client.get(url)
   result = DownloadChunk(start: start, ender: ender, data: response.body)
 
+
 proc downloadStream(
     downloadUrl: string,
     outputPath: string
@@ -175,6 +175,7 @@ proc downloadStream(
       echo fmt"Downloaded {totalBytesWritten}/{contentLength} bytes ({(totalBytesWritten.float / contentLength.float * 100):0.2f}%)"
 
     echo fmt"Downloaded stream to {outputPath}"
+
   except HttpRequestError as e:
     echo "Error downloading stream: ", e.msg
 
