@@ -43,7 +43,7 @@ proc getVideoInfo(videoId: string): JsonNode =
     response = client.postContent(url, $payload)
   except HttpRequestError as e:
     echo "Error fetching video info: ", e.msg
-    quit(1)
+    return
 
   return parseJson(response)
 
