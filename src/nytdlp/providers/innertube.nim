@@ -103,48 +103,47 @@ proc downloadStream(
     client: HttpClient,
     downloadUrl: string,
     outputPath: string
-  ) =
+) =
   ## Download the stream using the same HttpClient for authenticated access.
   try:
     echo "Downloading: " & downloadUrl & " to " & outputPath
 
     client.timeout = 4200
 
-    client.headers.add("Accept-Language", "en-US,en;q=0.9")
-    client.headers.add("Sec-Fetch-Dest", "empty")
-    client.headers.add("Sec-Fetch-Mode", "cors")
-    client.headers.add("Sec-Fetch-Site", "cross-site")
-    client.headers.add("Referer", "https://youtube.com")
-    client.headers.add(
-      "Cookie",
-      "CONSENT=YES+cb.20210328-17-p0.en+FX+" & randomConsentID()
-    )
+    client.headers = newHttpHeaders({
+      "Accept-Language": "en-US,en;q=0.9",
+      "Sec-Fetch-Dest": "empty",
+      "Sec-Fetch-Mode": "cors",
+      "Sec-Fetch-Site": "cross-site",
+      "Referer": "https://youtube.com",
+      "Cookie": "CONSENT=YES+cb.20210328-17-p0.en+FX+" & randomConsentID()
+    })
 
     var outputStream = newFileStream(outputPath, fmWrite)
-
     if outputStream == nil:
       raise newException(IOError, "Unable to open output file")
 
     defer: outputStream.close()
 
     var totalBytesRead: int64 = 0
-    const chunkSize = 8192
+    const chunkSize = 8192 * 10
 
-    let response = client.request(downloadUrl, HttpGet)
     var buffer = newString(chunkSize)
 
-    while true:
+    client.onProgressChanged = proc (total, progress, speed: BiggestInt) =
+      echo fmt"Downloaded {progress}/{total} bytes ({(progress.float / total.float * 100):0.2f}%) at {speed/1000:0.2f} KB/s"
+
+    var response = client.request(downloadUrl)
+    while not response.bodyStream.atEnd():
       let bytesRead = response.bodyStream.readData(addr(buffer[0]), chunkSize)
       if bytesRead <= 0:
         break
       outputStream.writeData(addr(buffer[0]), bytesRead)
       totalBytesRead += bytesRead
-      echo fmt"Downloaded {totalBytesRead} bytes"
+
     echo fmt"Downloaded stream to {outputPath}"
   except HttpRequestError as e:
     echo "Error downloading stream: ", e.msg
-
-
 
 proc downloadInnerStream*(url: string, isAudio: bool) =
   ## Main download procedure
