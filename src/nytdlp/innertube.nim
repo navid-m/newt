@@ -26,7 +26,6 @@
 #   echo "CLIENTCONTEXT: ", clientContext
 #   echo "ENDPOINT: ", endpoint, "\n\n"
 
-#   # Ensure headers are properly set
 #   client.headers.add("User-Agent", Agent)
 #   client.headers.add("Accept", "application/json")
 #   client.headers.add("Content-Type", "application/json")

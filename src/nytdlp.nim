@@ -68,6 +68,5 @@ proc main() =
     echo "Invalid args."
     quit(1)
 
-  echo "Downloaded to current directory."
 
 main()
