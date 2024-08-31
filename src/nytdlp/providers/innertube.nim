@@ -66,8 +66,9 @@ proc getAudio(videoInfo: JsonNode): JsonNode =
   var bestStream: JsonNode = nil
   for stream in videoInfo["streamingData"]["adaptiveFormats"].items:
     if stream["mimeType"].getStr().startsWith("audio/"):
-      if bestStream.isNil or (stream["bitrate"].getInt() > bestStream[
-          "bitrate"].getInt()):
+      if bestStream.isNil or (
+        stream["bitrate"].getInt() > bestStream["bitrate"].getInt()
+      ):
         bestStream = stream
   if bestStream.isNil:
     raise newException(ValueError, "No audio found")
@@ -86,5 +87,5 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
       echo getVideo(videoInfo)
 
   except CatchableError as e:
-    echo "Error here: ", e.msg
+    echo "Error here:", e.msg
     quit(1)
