@@ -7,43 +7,13 @@ import
   threadpool
 
 import ../primitives/randoms
-
+import ../primitives/inners
 
 type
   DownloadChunk = object
     start: int
     ender: int
     data: string
-
-
-# Constants for InnerTube API
-const INNERTUBE_API_URL = "https://www.youtube.com/youtubei/v1/player"
-const INNERTUBE_API_KEY = "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w"
-const INNERTUBE_CLIENT_NAME = "ANDROID"
-const INNERTUBE_CLIENT_VERSION = "18.11.34"
-const ANDROID_USER_AGENT = "com.google.android.youtube/18.11.34 (Linux; U; Android 11) gzip"
-
-
-# Build InnerTube API request payload
-proc buildInnertubePayload(videoId: string): JsonNode =
-  return %*{
-    "context": {
-      "client": {
-        "clientName": INNERTUBE_CLIENT_NAME,
-        "clientVersion": INNERTUBE_CLIENT_VERSION,
-        "androidSDKVersion": 30,
-        "userAgent": ANDROID_USER_AGENT,
-        "timeZone": "UTC",
-        "utcOffsetMinutes": 0,
-        "gl": "US",
-        "hl": "en"
-    }
-  },
-    "videoId": videoId,
-    "contentCheckOk": true,
-    "racyCheckOk": true,
-    "params": "CgIQBg=="
-  }
 
 
 proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
@@ -120,8 +90,7 @@ proc downloadChunk(url: string, start, ender: int): DownloadChunk =
     "Range": fmt"bytes={start}-{ender}",
     "Cookie": "CONSENT=YES+cb.20210328-17-p0.en+FX+" & randomConsentID()
   })
-  let response = client.get(url)
-  result = DownloadChunk(start: start, ender: ender, data: response.body)
+  result = DownloadChunk(start: start, ender: ender, data: client.get(url).body)
 
 
 proc downloadStream(
@@ -133,6 +102,8 @@ proc downloadStream(
     echo "Downloading: " & downloadUrl & " to " & outputPath
 
     let client = newHttpClient()
+    const chunkSize = 1024 * 1024 * 5
+
     client.headers = newHttpHeaders({
       "Accept-Language": "en-US,en;q=0.9",
       "Sec-Fetch-Dest": "empty",
@@ -142,14 +113,14 @@ proc downloadStream(
       "Cookie": "CONSENT=YES+cb.20210328-17-p0.en+FX+" & randomConsentID()
     })
 
-    # Get the total file size
     client.headers.add("Range", "bytes=0-0")
-    let headResponse = client.head(downloadUrl)
-    let contentLength = parseInt(headResponse.headers["Content-Range"].split(
-        "/")[1])
 
-    const chunkSize = 1024 * 1024 * 5
+    let headResponse = client.head(downloadUrl)
+    let contentLength = parseInt(
+      headResponse.headers["Content-Range"].split("/")[1]
+    )
     let numChunks = (contentLength div chunkSize) + 1
+
     var chunks: seq[FlowVar[DownloadChunk]]
 
     for i in 0 ..< numChunks:
