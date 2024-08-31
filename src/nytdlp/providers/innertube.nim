@@ -1,8 +1,10 @@
-import httpclient
-import json
-import random
-import strformat
-import strutils
+import
+  httpclient,
+  json,
+  random,
+  strformat,
+  strutils
+
 import ../primitives/randoms
 
 
@@ -112,6 +114,8 @@ proc downloadStream(
   try:
     echo "Downloading: " & downloadUrl & " to " & outputPath
 
+    client.timeout = 4200
+
     client.headers.add("Accept-Language", "en-US,en;q=0.9")
     client.headers.add("Sec-Fetch-Dest", "empty")
     client.headers.add("Sec-Fetch-Mode", "cors")
@@ -121,7 +125,9 @@ proc downloadStream(
       "Cookie",
       "CONSENT=YES+cb.20210328-17-p0.en+FX+" & randomConsentID()
     )
-    client.headers.add("Accept-Encoding", "gzip, deflate, br")
+
+    # Really, REALLY slow...eventually fails after getting 150KB...
+    # Need to download in chunks.
     client.downloadFile(downloadUrl, outputPath)
 
     echo fmt"Downloaded stream to {outputPath}"
@@ -131,28 +137,26 @@ proc downloadStream(
 
 # Main download procedure
 proc downloadInnerStream*(url: string, isAudio: bool) =
-  try:
-    let extractedVideoId = url.split("=")
-    let videoId = extractedVideoId[^1]
+  let extractedVideoId = url.split("=")
+  let videoId = extractedVideoId[^1]
+  let client = newHttpClient()
+  let videoInfo = getVideoInfo(videoId, client)
 
-    # Reuse the same client for all requests
-    let client = newHttpClient()
-    let videoInfo = getVideoInfo(videoId, client)
+  if videoInfo.isNil:
+    raise newException(ValueError, "Failed to retrieve video information")
 
-    if videoInfo.isNil:
-      raise newException(ValueError, "Failed to retrieve video information")
+  client.headers.del("Accept")
+  client.headers.add("Accept", "application/octet-stream")
+  client.headers.add("Content-Disposition", "attachment")
 
-    var downloadUrl: string
-    if isAudio:
-      let audioInfo = getAudio(videoInfo)
-      echo audioInfo
-      downloadUrl = audioInfo["url"].getStr()
-      downloadStream(client, downloadUrl, "audio.webm")
-    else:
-      let videoInfo = getVideo(videoInfo)
-      downloadUrl = videoInfo["url"].getStr()
-      downloadStream(client, downloadUrl, "video.webm")
+  var downloadUrl: string
 
-  except CatchableError as e:
-    echo "Error: ", e.msg
-    return
+  if isAudio:
+    let audioInfo = getAudio(videoInfo)
+    downloadUrl = audioInfo["url"].getStr()
+    downloadStream(client, downloadUrl, "audio.webm")
+
+  else:
+    let videoInfo = getVideo(videoInfo)
+    downloadUrl = videoInfo["url"].getStr()
+    downloadStream(client, downloadUrl, "video.webm")
