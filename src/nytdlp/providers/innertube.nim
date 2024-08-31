@@ -1,10 +1,8 @@
 import httpclient
-import uri
 import json
 import random
 import strformat
 import strutils
-import ../primitives/clients
 import ../primitives/randoms
 
 
@@ -113,7 +111,19 @@ proc downloadStream(
   ) =
   try:
     echo "Downloading: " & downloadUrl & " to " & outputPath
-    PrimaryClient.downloadFile(downloadUrl, outputPath)
+
+    client.headers.add("Accept-Language", "en-US,en;q=0.9")
+    client.headers.add("Sec-Fetch-Dest", "empty")
+    client.headers.add("Sec-Fetch-Mode", "cors")
+    client.headers.add("Sec-Fetch-Site", "cross-site")
+    client.headers.add("Referer", "https://youtube.com")
+    client.headers.add(
+      "Cookie",
+      "CONSENT=YES+cb.20210328-17-p0.en+FX+" & randomConsentID()
+    )
+    client.headers.add("Accept-Encoding", "gzip, deflate, br")
+    client.downloadFile(downloadUrl, outputPath)
+
     echo fmt"Downloaded stream to {outputPath}"
   except HttpRequestError as e:
     echo "Error downloading stream: ", e.msg
