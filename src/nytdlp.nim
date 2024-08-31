@@ -8,7 +8,6 @@ import strformat
 import os
 import strutils
 
-
 var GlobalBody: JsonNode
 
 
@@ -68,10 +67,10 @@ proc extractDownloadLink(signatureCipher: string): string =
       urlParam = param
       break
 
-  if urlParam.len() == 0 or urlParam.len() < 5:
+  if urlParam.len() == 0:
     raise newException(ValueError, "URL parameter not found in signature cipher")
 
-  return decodeUrl(urlParam.split('=')[1].replace("url=", ""))
+  return decodeUrl(urlParam.split('=')[1])
 
 
 # Extract the highest quality audio/video stream based on the parameter
@@ -94,17 +93,22 @@ proc extractHighestStream(videoInfo: JsonNode, isAudio: bool = true): JsonNode =
   return bestStream
 
 
-# Download the fucking thing
-proc downloadFile(url: string, outputPath: string) =
-  let client = newHttpClient()
+proc onProgressChanged(total, progress, speed: BiggestInt) =
+  echo("Downloaded ", progress, " of ", total)
+  echo("Current rate: ", speed div 1000, "kb/s")
 
+
+# Download the fucking thing
+# Simple function to download content and save to a file
+proc getStuff(url: string, outputPath: string) =
+  let client = newHttpClient()
   try:
-    client.headers.add(
-      "User-Agent", DownloaderAgent,
-    )
-    client.headers.add("Accept", "application/octet-stream")
-    client.headers.add("Content-Type", "application/json")
-    client.headers.add("Range", "bytes=0-")
+    # Set up necessary headers
+    client.headers.add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36")
+    client.headers.add("Connection", "keep-alive")
+    client.headers.add("Origin", "https://youtube.com")
+    client.onProgressChanged = onProgressChanged
+
     var fullBody = %*{
       "context": DownloaderClientContext
     }
@@ -112,19 +116,12 @@ proc downloadFile(url: string, outputPath: string) =
     for k, v in GlobalBody.pairs:
       fullBody[k] = v
 
-    echo "Endpoint:\n", url
-    echo "\n\nBody:\n", $fullBody
-    echo "\n\nClient headers:\n", client.headers
-    echo "\n\nPayload:\n", decodeUrl(url), $fullbody, "\n\n"
+    client.downloadFile("https://download.samplelib.com/mp4/sample-30s.mp4", "out.mp4")
 
-    let content = client.postContent(decodeUrl(url), $fullBody)
 
-    echo content
-    #writeFile(outputPath, content)
   except HttpRequestError as e:
     echo "Error downloading file: ", e.msg
     quit(1)
-
 
 # Run the CLI
 proc main() =
@@ -138,9 +135,9 @@ proc main() =
   let downloadUrl = extractDownloadLink(stream["signatureCipher"].getStr())
 
   if isAudio:
-    downloadFile(downloadUrl, "output.opus")
+    getStuff(downloadUrl, "output.opus")
   else:
-    downloadFile(downloadUrl, "output.mp4")
+    getStuff(downloadUrl, "output.mp4")
 
   echo "Downloaded to current directory."
 
