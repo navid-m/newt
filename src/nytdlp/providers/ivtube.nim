@@ -39,7 +39,6 @@ proc findVideoLink(videoID: string): string =
 
 # Download the fucking thing
 proc downloadIvStream*(videoURL: string, outputPath: string = "") =
-
   let videoID = extractVideoID(videoURL)
   let videoLink = findVideoLink(videoID)
   var outputPathToUse = outputPath
