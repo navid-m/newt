@@ -4,6 +4,7 @@ import json
 import random
 import strformat
 import strutils
+import ../primitives/clients
 import ../primitives/randoms
 
 
@@ -105,19 +106,14 @@ proc getAudio(videoInfo: JsonNode): JsonNode =
 
 
 # Download the stream using the same HttpClient for authenticated access.
-proc downloadStream(client: HttpClient, downloadUrl: string,
-    outputPath: string) =
+proc downloadStream(
+    client: HttpClient,
+    downloadUrl: string,
+    outputPath: string
+  ) =
   try:
-    client.headers.add("Referer", "https://www.youtube.com/")
-    client.headers.add("Origin", "https://www.youtube.com/")
-    client.headers.add("Accept-Language", "en-US,en;q=0.9")
-    client.headers.add("Sec-Fetch-Dest", "empty")
-    client.headers.add("Sec-Fetch-Mode", "cors")
-    client.headers.add("Sec-Fetch-Site", "cross-site")
-    client.headers.add("Accept-Encoding", "gzip, deflate, br")
-
-    let streamData = client.getContent(downloadUrl)
-    writeFile(outputPath, streamData)
+    echo "Downloading: " & downloadUrl & " to " & outputPath
+    PrimaryClient.downloadFile(downloadUrl, outputPath)
     echo fmt"Downloaded stream to {outputPath}"
   except HttpRequestError as e:
     echo "Error downloading stream: ", e.msg
@@ -150,4 +146,3 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
   except CatchableError as e:
     echo "Error: ", e.msg
     return
-
