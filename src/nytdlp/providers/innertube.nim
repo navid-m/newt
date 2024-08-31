@@ -51,27 +51,33 @@ proc getVideoInfo(videoId: string): JsonNode =
 # Get highest quality video stream.
 proc getVideo(videoInfo: JsonNode): JsonNode =
   var bestStream: JsonNode = nil
+
   for stream in videoInfo["streamingData"]["adaptiveFormats"].items:
     if stream["mimeType"].getStr().startsWith("video/") and stream.hasKey("audioQuality"):
       if bestStream.isNil or (stream["bitrate"].getInt() > bestStream[
           "bitrate"].getInt()):
         bestStream = stream
+
   if bestStream.isNil:
     raise newException(ValueError, "No video found")
+
   return bestStream
 
 
 # Get highest quality audio stream.
 proc getAudio(videoInfo: JsonNode): JsonNode =
   var bestStream: JsonNode = nil
+
   for stream in videoInfo["streamingData"]["adaptiveFormats"].items:
     if stream["mimeType"].getStr().startsWith("audio/"):
       if bestStream.isNil or (
         stream["bitrate"].getInt() > bestStream["bitrate"].getInt()
       ):
         bestStream = stream
+
   if bestStream.isNil:
     raise newException(ValueError, "No audio found")
+
   return bestStream
 
 
