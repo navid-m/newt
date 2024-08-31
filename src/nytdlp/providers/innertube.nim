@@ -92,9 +92,8 @@ proc extractHighestStream(videoInfo: JsonNode, isAudio: bool): JsonNode =
 
 
 # Download
-proc downloadContentViaInner*(url: string, outputPath: string, isAudio: bool) =
+proc downloadInnerStream*(url: string, isAudio: bool) =
   let client = newHttpClient()
-
   try:
     client.headers.add("User-Agent", DownloaderAgent)
     client.headers.add("Connection", "keep-alive")
@@ -104,16 +103,20 @@ proc downloadContentViaInner*(url: string, outputPath: string, isAudio: bool) =
       "context": DownloaderClientContext
     }
 
+    let infoAsJson: JsonNode = getVideoInfo(url)
+
     for k, v in GlobalBody.pairs:
       fullBody[k] = v
-
-    let infoAsJson: JsonNode = getVideoInfo(url)
 
     echo "Endpoint:\n", url
     echo "\n\nBody:\n", $fullBody
     echo "\n\nClient headers:\n", client.headers
+    echo "\n\nGetting EXTRACT info...\n"
 
     let highestQualStreamInfo: JsonNode = extractHighestStream(infoAsJson, isAudio)
+
+    echo "Getting BEST info...\n\n"
+
     let bestStreamUrl = extractDownloadLink(highestQualStreamInfo.getStr("signatureCipher"))
 
     var extension = "webm"

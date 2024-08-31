@@ -38,15 +38,18 @@ proc findVideoLink(videoID: string): string =
 
 
 # Download the fucking thing
-proc downloadIvStream*(videoURL: string) =
+proc downloadIvStream*(videoURL: string, outputPath: string = "") =
+
   let videoID = extractVideoID(videoURL)
   let videoLink = findVideoLink(videoID)
-  let fileName = fmt"{videoID}.mp4"
+  var outputPathToUse = outputPath
+
+  if outputPath.len() == 0:
+    outputPathToUse = fmt"{videoID}.mp4"
 
   if videoLink.len == 0:
     echo "Could not find a valid video link."
     return
 
-  writeFile(fileName, PrimaryClient.getContent(videoLink))
-  echo fmt"Video downloaded as {fileName}"
-
+  writeFile(outputPathToUse, PrimaryClient.getContent(videoLink))
+  echo fmt"Video downloaded as {outputPathToUse}"
