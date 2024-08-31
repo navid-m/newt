@@ -8,8 +8,8 @@ import strformat
 import ../primitives/clients
 
 
-# Extract video ID
 proc extractVideoID(url: string): string =
+  ## Extract video ID
   if url.contains("v="):
     let startPos = url.find("v=") + 2
     return url[startPos ..< startPos + 11]
@@ -19,8 +19,8 @@ proc extractVideoID(url: string): string =
     return url
 
 
-# Scrape IV and find the video download link
 proc findVideoLink(videoID: string): string =
+  ## Scrape IV and find the video download link
   let parser = parseHtml(
     PrimaryClient.getContent(
       fmt"https://yewtu.be/watch?v={videoID}"
@@ -37,8 +37,8 @@ proc findVideoLink(videoID: string): string =
   return ""
 
 
-# Download the fucking thing
 proc downloadIvStream*(videoURL: string, outputPath: string = "") =
+  ## Download the fucking thing
   let videoID = extractVideoID(videoURL)
   let videoLink = findVideoLink(videoID)
   var outputPathToUse = outputPath
