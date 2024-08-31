@@ -89,4 +89,4 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
 
   except CatchableError as e:
     echo "Error here:", e.msg
-    quit(1)
+    return
