@@ -1,10 +1,14 @@
 import os
+
 import nytdlp/providers/ivtube
 import nytdlp/providers/innertube
+import nytdlp/internal/logger
 
 
 # Run the CLI
 proc main() =
+  SetLoudness(true)
+
   if paramCount() < 1:
     echo "Usage: nytdlp [-v|-a] <YouTube video URL>"
     quit(1)

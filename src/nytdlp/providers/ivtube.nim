@@ -5,8 +5,9 @@ import xmltree
 import strtabs
 import uri
 import strformat
-import ../primitives/clients
 
+import ../primitives/clients
+import ../internal/logger
 
 proc extractVideoID(url: string): string =
   ## Extract video ID
@@ -47,8 +48,8 @@ proc downloadIvStream*(videoURL: string, outputPath: string = "") =
     outputPathToUse = fmt"{videoID}.mp4"
 
   if videoLink.len == 0:
-    echo "Could not find a valid video link."
+    LogError("Could not find a valid video link.")
     return
 
   writeFile(outputPathToUse, PrimaryClient.getContent(videoLink))
-  echo fmt"Video downloaded as {outputPathToUse}"
+  LogInfo(fmt"Video downloaded as {outputPathToUse}")

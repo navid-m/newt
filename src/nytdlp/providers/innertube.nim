@@ -8,6 +8,7 @@ import
 
 import ../primitives/randoms
 import ../primitives/inners
+import ../internal/logger
 
 type
   DownloadChunk = object
@@ -38,7 +39,7 @@ proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
     let payload = buildInnertubePayload(videoId)
     response = client.postContent(url, $payload)
   except HttpRequestError as e:
-    echo "Error fetching video info: ", e.msg
+    LogError("Error fetching video info: " & e.msg)
     return nil
 
   return parseJson(response)
@@ -99,7 +100,7 @@ proc downloadStream(
 ) =
   ## Download the whole stream
   try:
-    echo "Downloading: " & downloadUrl & " to " & outputPath
+    LogInfo("Downloading: " & downloadUrl & " to " & outputPath)
 
     let client = newHttpClient()
     const chunkSize = 1024 * 1024 * 5
@@ -120,7 +121,6 @@ proc downloadStream(
       headResponse.headers["Content-Range"].split("/")[1]
     )
     let numChunks = (contentLength div chunkSize) + 1
-
     var chunks: seq[FlowVar[DownloadChunk]]
 
     for i in 0 ..< numChunks:
@@ -143,12 +143,12 @@ proc downloadStream(
       let chunk = ^chunkFv
       outputStream.write(chunk.data)
       totalBytesWritten += chunk.data.len
-      echo fmt"Downloaded {totalBytesWritten}/{contentLength} bytes ({(totalBytesWritten.float / contentLength.float * 100):0.2f}%)"
+      LogInfo(fmt"Downloaded {totalBytesWritten}/{contentLength} bytes ({(totalBytesWritten.float / contentLength.float * 100):0.2f}%)")
 
-    echo fmt"Downloaded stream to {outputPath}"
+    LogInfo(fmt"Downloaded stream to {outputPath}")
 
   except HttpRequestError as e:
-    echo "Error downloading stream: ", e.msg
+    LogError("Error downloading stream: " & e.msg)
 
 
 proc downloadInnerStream*(url: string, isAudio: bool) =
