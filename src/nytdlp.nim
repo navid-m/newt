@@ -2,7 +2,7 @@ import os
 
 import nytdlp/providers/ivtube
 import nytdlp/providers/innertube
-import nytdlp/internal/logger
+import nytdlp/diagnostics/logger
 
 
 # Run the CLI

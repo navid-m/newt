@@ -7,7 +7,7 @@ import uri
 import strformat
 
 import ../primitives/clients
-import ../internal/logger
+import ../diagnostics/logger
 
 proc extractVideoID(url: string): string =
   ## Extract video ID

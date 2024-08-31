@@ -8,7 +8,7 @@ import
 
 import ../primitives/randoms
 import ../primitives/inners
-import ../internal/logger
+import ../diagnostics/logger
 
 
 type
