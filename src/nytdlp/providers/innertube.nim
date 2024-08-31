@@ -1,7 +1,6 @@
 import
   httpclient,
   json,
-  random,
   strformat,
   strutils
 
@@ -38,13 +37,8 @@ proc buildInnertubePayload(videoId: string): JsonNode =
   }
 
 
-proc randomConsentID(): string =
-  let randomInt = rand(899) + 100
-  return fmt"{randomInt}"
-
-
-# Get video info using InnerTube API
 proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
+  ## Get video info using InnerTube API
   let userAgentToUse = randomUserAgent()
 
   client.headers = newHttpHeaders(titleCase = true)
@@ -71,10 +65,10 @@ proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
   return parseJson(response)
 
 
-# Get highest quality video stream.
-proc getVideo(videoInfo: JsonNode): JsonNode =
-  var bestStream: JsonNode = nil
 
+proc getVideo(videoInfo: JsonNode): JsonNode =
+  ## Get highest quality video stream.
+  var bestStream: JsonNode = nil
   for stream in videoInfo["streamingData"]["adaptiveFormats"].items:
     if stream["mimeType"].getStr().startsWith("video/") and stream.hasKey("audioQuality"):
       if bestStream.isNil or (
@@ -88,8 +82,8 @@ proc getVideo(videoInfo: JsonNode): JsonNode =
   return bestStream
 
 
-# Get highest quality audio stream.
 proc getAudio(videoInfo: JsonNode): JsonNode =
+  ## Get highest quality audio stream.
   var bestStream: JsonNode = nil
 
   for stream in videoInfo["streamingData"]["adaptiveFormats"].items:
@@ -105,12 +99,12 @@ proc getAudio(videoInfo: JsonNode): JsonNode =
   return bestStream
 
 
-# Download the stream using the same HttpClient for authenticated access.
 proc downloadStream(
     client: HttpClient,
     downloadUrl: string,
     outputPath: string
   ) =
+  ## Download the stream using the same HttpClient for authenticated access.
   try:
     echo "Downloading: " & downloadUrl & " to " & outputPath
 
@@ -135,8 +129,8 @@ proc downloadStream(
     echo "Error downloading stream: ", e.msg
 
 
-# Main download procedure
 proc downloadInnerStream*(url: string, isAudio: bool) =
+  ## Main download procedure
   let extractedVideoId = url.split("=")
   let videoId = extractedVideoId[^1]
   let client = newHttpClient()
