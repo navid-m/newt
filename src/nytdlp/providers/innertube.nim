@@ -81,6 +81,7 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
     let extractedVideoId = url.split("=")
     let videoId = extractedVideoId[^1]
     let videoInfo = getVideoInfo(videoId)
+
     if (isAudio):
       echo getAudio(videoInfo)
     else:
