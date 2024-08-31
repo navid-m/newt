@@ -65,7 +65,6 @@ proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
   return parseJson(response)
 
 
-
 proc getVideo(videoInfo: JsonNode): JsonNode =
   ## Get highest quality video stream.
   var bestStream: JsonNode = nil
