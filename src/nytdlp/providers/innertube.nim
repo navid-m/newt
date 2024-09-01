@@ -50,8 +50,7 @@ proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
 proc getVideo(videoInfo: JsonNode): JsonNode =
   ## Get highest quality video stream.
   var bestStream: JsonNode = nil
-
-  for stream in videoInfo["streamingData"]["adaptiveFormats"].items:
+  for stream in videoInfo["streamingData"]["formats"].items:
     if stream["mimeType"].getStr().startsWith("video/") and stream.hasKey("audioQuality"):
       if bestStream.isNil or (
         stream["bitrate"].getInt() > bestStream["bitrate"].getInt()
