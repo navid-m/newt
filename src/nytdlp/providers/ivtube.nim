@@ -4,7 +4,6 @@ import
   htmlparser,
   xmltree,
   strtabs,
-  uri,
   strformat
 
 import
