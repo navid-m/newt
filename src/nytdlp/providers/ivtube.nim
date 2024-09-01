@@ -1,13 +1,15 @@
-import strutils
-import httpclient
-import htmlparser
-import xmltree
-import strtabs
-import uri
-import strformat
+import
+  strutils,
+  httpclient,
+  htmlparser,
+  xmltree,
+  strtabs,
+  uri,
+  strformat
 
 import ../primitives/clients
 import ../diagnostics/logger
+
 
 proc extractVideoID(url: string): string =
   ## Extract video ID

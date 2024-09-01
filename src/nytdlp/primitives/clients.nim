@@ -1,5 +1,6 @@
-import httpclient
-import randoms
+import
+  httpclient,
+  randoms
 
 
 let PrimaryClient* = newHttpClient()
