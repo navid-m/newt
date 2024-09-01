@@ -5,7 +5,7 @@ var LoudLogger = false;
 var SuppressErrors = false;
 
 
-proc SetLoudness*(loud: bool) =
+proc AnnounceYTLogs*(loud: bool) =
     ## Adjust log level
     LoudLogger = loud
 

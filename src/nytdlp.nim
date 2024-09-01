@@ -8,7 +8,7 @@ import
 
 # Run the CLI
 proc main() =
-  SetLoudness(true)
+  AnnounceYTLogs(true)
 
   if paramCount() < 1:
     echo "Usage: nytdlp [-v|-a] <YouTube video URL>"
