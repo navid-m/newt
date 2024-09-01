@@ -6,9 +6,10 @@ import
   streams,
   threadpool
 
-import ../primitives/randoms
-import ../primitives/inners
-import ../diagnostics/logger
+import
+  ../primitives/randoms,
+  ../primitives/inners,
+  ../diagnostics/logger
 
 
 type
