@@ -169,13 +169,13 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
     downloadUrl = audioInfo["url"].getStr()
     downloadStream(downloadUrl, fmt"{dlName}.weba")
   else:
-    let videoInfo = getVideo(videoInfo)
-    let audioDownloadUrl = videoInfo[1]["url"].getStr()
+    let fullVideoInfo = getVideo(videoInfo)
+    let audioDownloadUrl = fullVideoInfo[1]["url"].getStr()
     let videoName = fmt"{dlName}.mp4"
     let tempVideoName = "temp_video.webm"
     let tempAudioName = "temp_audio.weba"
 
-    downloadUrl = videoInfo[0]["url"].getStr()
+    downloadUrl = fullVideoInfo[0]["url"].getStr()
 
     downloadStream(downloadUrl, tempVideoName)
     downloadStream(audioDownloadUrl, tempAudioName)
