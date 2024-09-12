@@ -14,5 +14,5 @@ proc downloadStream(url: string, isAudio: bool) =
     downloadIvStream(url)
 
 
-proc downloadAudio*(url: string) = downloadStream(url, true)
-proc downloadVideo*(url: string) = downloadStream(url, false)
+proc downloadYtAudio*(url: string) = downloadStream(url, true)
+proc downloadYtVideo*(url: string) = downloadStream(url, false)

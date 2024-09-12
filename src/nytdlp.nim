@@ -3,7 +3,7 @@ import
   nytdlp/downloads/dl
 
 
-export downloadAudio, downloadVideo
+export downloadYtAudio, downloadYtVideo
 
 
 when isMainModule:
@@ -15,7 +15,7 @@ when isMainModule:
   let isAudio = paramCount() == 1 or paramStr(1) == "-a"
 
   if isAudio:
-    downloadAudio(url)
+    downloadYtAudio(url)
     quit(0)
 
-  downloadVideo(url)
+  downloadYtVideo(url)
