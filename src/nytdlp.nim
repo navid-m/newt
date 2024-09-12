@@ -5,8 +5,7 @@ import
   nytdlp/providers/innertube
 
 
-# Run the CLI
-proc main() =
+when isMainModule:
   if paramCount() < 1:
     echo "Usage: nytdlp [-v|-a] <YouTube video URL>"
     quit(1)
@@ -20,6 +19,3 @@ proc main() =
     echo "Falling back to IV, as Innertube request failed. Only video can be downloaded this way"
     echo "Details: ", getCurrentException().msg
     downloadIvStream(url)
-
-
-main()
