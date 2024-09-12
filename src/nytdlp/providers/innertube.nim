@@ -116,6 +116,7 @@ proc downloadStream(
       headResponse.headers["Content-Range"].split("/")[1]
     )
     let numChunks = (contentLength div chunkSize) + 1
+
     var chunks: seq[FlowVar[DownloadChunk]]
 
     for i in 0 ..< numChunks:
@@ -123,10 +124,10 @@ proc downloadStream(
       var ender = (i + 1) * chunkSize - 1
       if ender >= contentLength:
         ender = contentLength - 1
-
       chunks.add(spawn downloadChunk(downloadUrl, start, ender))
 
     var outputStream = newFileStream(outputPath, fmWrite)
+
     if outputStream == nil:
       raise newException(IOError, "Unable to open output file")
 
@@ -148,10 +149,8 @@ proc downloadStream(
 
 proc downloadInnerStream*(url: string, isAudio: bool) =
   ## Main download procedure
-  let extractedVideoId = url.split("=")
-  let videoId = extractedVideoId[^1]
-  let client = newHttpClient()
-  let videoInfo = getVideoInfo(videoId, client)
+  let videoId = url.split("=")[^1]
+  let videoInfo = getVideoInfo(videoId, newHttpClient())
 
   if videoInfo.isNil:
     raise newException(ValueError, "Failed to retrieve video information")
