@@ -4,12 +4,14 @@ import
   strformat,
   strutils,
   streams,
+  osproc,
   threadpool
 
 import
   ../primitives/randoms,
   ../primitives/inners,
   ../models/downloadmods,
+  ../diagnostics/envchk,
   ../diagnostics/logger
 
 
@@ -44,8 +46,8 @@ proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
 proc getVideo(videoInfo: JsonNode): JsonNode =
   ## Get highest quality video stream.
   var bestStream: JsonNode = nil
-  for stream in videoInfo["streamingData"]["formats"].items:
-    if stream["mimeType"].getStr().startsWith("video/") and stream.hasKey("audioQuality"):
+  for stream in videoInfo["streamingData"]["adaptiveFormats"].items:
+    if stream["mimeType"].getStr().startsWith("video/"):
       if bestStream.isNil or (
         stream["bitrate"].getInt() > bestStream["bitrate"].getInt()
       ):
@@ -95,6 +97,8 @@ proc downloadStream(
 ) =
   ## Download the whole stream
   try:
+    # Here, get the highest quality audio stream, then merge it.
+
     LogInfo("Downloading: " & downloadUrl & " to " & outputPath)
 
     let client = newHttpClient()
@@ -142,6 +146,11 @@ proc downloadStream(
       LogInfo(fmt"Downloaded {totalBytesWritten}/{contentLength} bytes ({(totalBytesWritten.float / contentLength.float * 100):0.2f}%)")
 
     LogInfo(fmt"Downloaded stream to {outputPath}")
+    if CurrentSysHasFfmpeg() and outputPath.contains(".webm"):
+      discard
+      #discard execCmdEx(fmt"ffmpeg -i input_video.mp4 -i new_audio.opus -c:v copy -map 0:v:0 -map 1:a:0 -shortest output_video.mp4")
+
+
 
   except HttpRequestError as e:
     LogError("Error downloading stream: " & e.msg)
