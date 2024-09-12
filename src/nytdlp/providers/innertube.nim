@@ -9,14 +9,8 @@ import
 import
   ../primitives/randoms,
   ../primitives/inners,
+  ../models/downloadmods,
   ../diagnostics/logger
-
-
-type
-  DownloadChunk = object
-    start: int
-    ender: int
-    data: string
 
 
 proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
