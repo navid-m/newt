@@ -96,8 +96,6 @@ proc downloadStream(
 ) =
   ## Download the whole stream
   try:
-    # Here, get the highest quality audio stream, then merge it.
-
     LogInfo("Downloading: " & downloadUrl & " to " & outputPath)
 
     let client = newHttpClient()
@@ -119,7 +117,6 @@ proc downloadStream(
       headResponse.headers["Content-Range"].split("/")[1]
     )
     let numChunks = (contentLength div chunkSize) + 1
-
     var chunks: seq[FlowVar[DownloadChunk]]
 
     for i in 0 ..< numChunks:
