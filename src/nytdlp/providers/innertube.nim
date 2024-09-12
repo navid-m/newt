@@ -187,6 +187,7 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
         LogInfo("Failed merge with exit code: ", res.exitCode, res.output)
         fallbackOp()
     else:
+      LogInfo("FFmpeg is not installed. Using initial downloaded stream instead of merging.")
       fallbackOp()
 
     removeFile(tempVideoName)
