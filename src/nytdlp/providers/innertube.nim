@@ -162,6 +162,8 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
 
   var downloadUrl: string
 
+  LogInfo("Getting highest quality stream...")
+
   if isAudio:
     let audioInfo = getAudio(videoInfo)
     downloadUrl = audioInfo["url"].getStr()
@@ -190,3 +192,6 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
         fallbackOp()
     else:
       fallbackOp()
+
+    removeFile(tempVideoName)
+    removeFile(tempAudioName)
