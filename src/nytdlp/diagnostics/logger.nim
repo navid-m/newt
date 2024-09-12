@@ -5,13 +5,10 @@ var LoudLogger = false;
 var SuppressErrors = false;
 
 
-proc AnnounceYTLogs*(loud: bool) =
-    ## Adjust log level
-    LoudLogger = loud
+proc AnnounceYTLogs*(loud: bool) = LoudLogger = loud
 
 
 proc LogInfo*(info: varargs[string, `$`]) =
-    ## Log some information
     if LoudLogger:
         echo info
 
