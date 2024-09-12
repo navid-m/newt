@@ -151,6 +151,8 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
   ## Main download procedure
   let videoId = url.split("=")[^1]
   let videoInfo = getVideoInfo(videoId, newHttpClient())
+  let dlName = videoInfo["videoDetails"]["title"].str & " [" & videoInfo[
+      "videoDetails"]["videoId"].str & "]"
 
   if videoInfo.isNil:
     raise newException(ValueError, "Failed to retrieve video information")
@@ -160,8 +162,8 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
   if isAudio:
     let audioInfo = getAudio(videoInfo)
     downloadUrl = audioInfo["url"].getStr()
-    downloadStream(downloadUrl, "audio.weba")
+    downloadStream(downloadUrl, fmt"{dlName}.weba")
   else:
     let videoInfo = getVideo(videoInfo)
     downloadUrl = videoInfo["url"].getStr()
-    downloadStream(downloadUrl, "video.webm")
+    downloadStream(downloadUrl, fmt"{dlName}.webm")
