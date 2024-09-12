@@ -7,7 +7,7 @@ import
 
 when isMainModule:
   if paramCount() < 1:
-    echo "Usage: nytdlp [-v|-a] <YouTube video URL>"
+    echo "usage: nytdlp [-v|-a] <yt video url>"
     quit(1)
 
   let url = if paramCount() == 2: paramStr(2) else: paramStr(1)
