@@ -187,8 +187,7 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
         "ffmpeg -i {tempVideoName} -i {tempAudioName} -c:v copy -map 0:v:0 -map 1:a:0 -shortest \"{videoName}\" -y".fmt
       )
       if res.exitCode != 0:
-        LogInfo("Failed merge with exit code: ", res.exitCode)
-        LogInfo(res.output)
+        LogInfo("Failed merge with exit code: ", res.exitCode, res.output)
         fallbackOp()
     else:
       fallbackOp()
