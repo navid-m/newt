@@ -11,7 +11,7 @@ import
   ../diagnostics/logger
 
 
-proc extractVideoID(url: string): string =
+proc extractVideoId(url: string): string =
   ## Extract video ID
   if url.contains("v="):
     let startPos = url.find("v=") + 2
@@ -42,7 +42,7 @@ proc findVideoLink(videoID: string): string =
 
 proc downloadIvStream*(videoURL: string, outputPath: string = "") =
   ## Download the fucking thing
-  let videoID = extractVideoID(videoURL)
+  let videoID = extractVideoId(videoURL)
   let videoLink = findVideoLink(videoID)
   var outputPathToUse = outputPath
 
