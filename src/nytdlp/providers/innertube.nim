@@ -4,15 +4,14 @@ import
   strformat,
   strutils,
   streams,
+  os,
   osproc,
   threadpool
 
 import
-  ../primitives/randoms,
-  ../primitives/inners,
-  ../models/downloadmods,
-  ../diagnostics/envchk,
-  ../diagnostics/logger
+  ../primitives/[randoms, inners],
+  ../diagnostics/[envchk, logger],
+  ../models/downloadmods
 
 
 proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
@@ -43,22 +42,6 @@ proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
   return parseJson(response)
 
 
-proc getVideo(videoInfo: JsonNode): JsonNode =
-  ## Get highest quality video stream.
-  var bestStream: JsonNode = nil
-  for stream in videoInfo["streamingData"]["adaptiveFormats"].items:
-    if stream["mimeType"].getStr().startsWith("video/"):
-      if bestStream.isNil or (
-        stream["bitrate"].getInt() > bestStream["bitrate"].getInt()
-      ):
-        bestStream = stream
-
-  if bestStream.isNil:
-    raise newException(ValueError, "No video found")
-
-  return bestStream
-
-
 proc getAudio(videoInfo: JsonNode): JsonNode =
   ## Get highest quality audio stream.
   var bestStream: JsonNode = nil
@@ -74,6 +57,22 @@ proc getAudio(videoInfo: JsonNode): JsonNode =
     raise newException(ValueError, "No audio found")
 
   return bestStream
+
+
+proc getVideo(videoInfo: JsonNode): (JsonNode, JsonNode) =
+  ## Get highest quality video stream.
+  var bestStream: JsonNode = nil
+  for stream in videoInfo["streamingData"]["adaptiveFormats"].items:
+    if stream["mimeType"].getStr().startsWith("video/"):
+      if bestStream.isNil or (
+        stream["bitrate"].getInt() > bestStream["bitrate"].getInt()
+      ):
+        bestStream = stream
+
+  if bestStream.isNil:
+    raise newException(ValueError, "No video found")
+
+  return (bestStream, getAudio(videoInfo))
 
 
 proc downloadChunk(url: string, start, ender: int): DownloadChunk =
@@ -146,11 +145,6 @@ proc downloadStream(
       LogInfo(fmt"Downloaded {totalBytesWritten}/{contentLength} bytes ({(totalBytesWritten.float / contentLength.float * 100):0.2f}%)")
 
     LogInfo(fmt"Downloaded stream to {outputPath}")
-    if CurrentSysHasFfmpeg() and outputPath.contains(".webm"):
-      discard
-      #discard execCmdEx(fmt"ffmpeg -i input_video.mp4 -i new_audio.opus -c:v copy -map 0:v:0 -map 1:a:0 -shortest output_video.mp4")
-
-
 
   except HttpRequestError as e:
     LogError("Error downloading stream: " & e.msg)
@@ -174,5 +168,25 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
     downloadStream(downloadUrl, fmt"{dlName}.weba")
   else:
     let videoInfo = getVideo(videoInfo)
-    downloadUrl = videoInfo["url"].getStr()
-    downloadStream(downloadUrl, fmt"{dlName}.webm")
+    let audioDownloadUrl = videoInfo[1]["url"].getStr()
+    let videoName = fmt"{dlName}.mp4"
+    let tempVideoName = "temp_video.webm"
+    let tempAudioName = "temp_audio.weba"
+
+    downloadUrl = videoInfo[0]["url"].getStr()
+
+    downloadStream(downloadUrl, tempVideoName)
+    downloadStream(audioDownloadUrl, tempAudioName)
+
+    proc fallbackOp() = moveFile(tempVideoName, videoName)
+
+    if CurrentSysHasFfmpeg():
+      let res = execCmdEx(
+        "ffmpeg -i {tempVideoName} -i {tempAudioName} -c:v copy -map 0:v:0 -map 1:a:0 -shortest \"{videoName}\" -y".fmt
+      )
+      if res.exitCode != 0:
+        LogInfo("Failed merge with exit code: ", res.exitCode)
+        LogInfo(res.output)
+        fallbackOp()
+    else:
+      fallbackOp()
