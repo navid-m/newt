@@ -1,5 +1,5 @@
 import
-    ../providers/[innertube]
+  ../providers/[innertube],
+  ../models/mediamods
 
-proc getMediaInfo*(url: string) =
-    getInnerStreamData(url)
+proc getMediaInfo*(url: string): seq[Media] = getInnerStreamData(url)

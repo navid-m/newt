@@ -1,5 +1,6 @@
 import
   os,
+  nytdlp/models/mediamods,
   nytdlp/downloads/[dl, dlinf]
 
 
@@ -20,7 +21,8 @@ when isMainModule:
   let isInfo = paramCount() == 1 or paramStr(1) == "-i"
 
   if isInfo:
-    getMediaInfo(url)
+    for media in getMediaInfo(url):
+      echo media.asString()
     quit(0)
   if isAudio:
     downloadYtAudio(url)

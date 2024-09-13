@@ -59,9 +59,6 @@ proc getAudio(videoInfo: JsonNode): JsonNode =
   return bestStream
 
 
-proc getAvailableStreamInfo(videoInfo: JsonNode): Media =
-  echo videoInfo
-
 proc getVideo(videoInfo: JsonNode): (JsonNode, JsonNode) =
   ## Get highest quality video stream
   var bestStream: JsonNode = nil
@@ -152,9 +149,24 @@ proc downloadStream(
     LogError("Error downloading stream: " & e.msg)
 
 
-proc getInnerStreamData*(url: string) =
-  let vidinf = getVideoInfo(url.split("=")[^1], newHttpClient())
-  discard getAvailableStreamInfo(vidinf)
+proc getInnerStreamData*(url: string): seq[Media] =
+  let vidInf = getVideoInfo(url.split("=")[^1], newHttpClient())
+  let videoId = vidInf["videoDetails"]["videoId"].getStr
+  let title = vidInf["videoDetails"]["title"].getStr
+
+  var mediaSeq: seq[Media] = @[]
+
+  for format in vidInf["streamingData"]["adaptiveFormats"].items:
+    var mediaInstance: Media
+    mediaInstance.videoId = videoId
+    mediaInstance.title = title
+    mediaInstance.itag = format["itag"].getInt
+    mediaInstance.mimeType = format["mimeType"].getStr
+    mediaInstance.bitrate = format["bitrate"].getInt
+    mediaSeq.add(mediaInstance)
+
+  return mediaSeq
+
 
 proc downloadInnerStream*(url: string, isAudio: bool) =
   ## Main download procedure
