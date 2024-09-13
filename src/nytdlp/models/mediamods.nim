@@ -5,6 +5,7 @@ type
     videoId*: string
     title*: string
     itag*: int
+    fps*: int
     bitrate*: int64
     mimeType*: string
     lengthSeconds*: int64
@@ -12,35 +13,37 @@ type
     audioSampleRate*: int64
     audioChannels*: int
     projectionType*: string
+    width*: int
+    height*: int
     quality*: string
+    qualityLabel*: string
     audioQuality*: string
 
 proc asString*(media: Media): string =
   result = fmt"""
   ------------------------------------------------------------
-  | Video ID         | {media.videoId}
+  Video ID         | {media.videoId}
   ------------------------------------------------------------
-  | Title            | {media.title}
+  Title            | {media.title}
   ------------------------------------------------------------
-  | Itag             | {media.itag}
+  Itag             | {media.itag}
   ------------------------------------------------------------
-  | Bitrate          | {media.bitrate} bps
+  Bitrate          | {media.bitrate} bps
   ------------------------------------------------------------
-  | Mime Type        | {media.mimeType}
+  Mime Type        | {media.mimeType}
   ------------------------------------------------------------
-  | Length           | {media.lengthSeconds} seconds
+  Length           | {media.lengthSeconds} seconds
   ------------------------------------------------------------
-  | Content Length   | {media.contentLength} bytes
+  Content Length   | {media.contentLength} bytes
   ------------------------------------------------------------
-  | Audio Sample Rate| {media.audioSampleRate} Hz
+  Audio Sample Rate| {media.audioSampleRate} hz
   ------------------------------------------------------------
-  | Audio Channels   | {media.audioChannels}
+  Audio Channels   | {media.audioChannels}
   ------------------------------------------------------------
-  | Projection Type  | {media.projectionType}
+  Projection Type  | {media.projectionType}
   ------------------------------------------------------------
-  | Quality          | {media.quality}
+  Quality          | {media.quality}
   ------------------------------------------------------------
-  | Audio Quality    | {media.audioQuality}
+  Audio Quality    | {media.audioQuality}
   ------------------------------------------------------------
   """
-

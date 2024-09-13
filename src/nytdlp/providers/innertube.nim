@@ -153,17 +153,55 @@ proc getInnerStreamData*(url: string): seq[Media] =
   let vidInf = getVideoInfo(url.split("=")[^1], newHttpClient())
   let videoId = vidInf["videoDetails"]["videoId"].getStr
   let title = vidInf["videoDetails"]["title"].getStr
+  let lengthSeconds = vidInf["videoDetails"]["lengthSeconds"].getBiggestInt
 
   var mediaSeq: seq[Media] = @[]
 
-  for format in vidInf["streamingData"]["adaptiveFormats"].items:
-    var mediaInstance: Media
-    mediaInstance.videoId = videoId
-    mediaInstance.title = title
-    mediaInstance.itag = format["itag"].getInt
-    mediaInstance.mimeType = format["mimeType"].getStr
-    mediaInstance.bitrate = format["bitrate"].getInt
-    mediaSeq.add(mediaInstance)
+
+  for format in vidInf["streamingData"]["adaptiveFormats"].items: #
+    var audioSampleRate = 0
+    var audioQuality = "N/A"
+
+    try:
+      audioSampleRate = format["audioSampleRate"].getInt
+      audioQuality = format["audioQuality"].getStr
+    except:
+      discard
+
+    var width = 0
+    var height = 0
+    var fps = 0
+    var quality = "N/A"
+    var qualityLabel = "N/A"
+    var projectionType = "N/A"
+
+    try:
+      width = format["width"].getInt
+      height = format["height"].getInt
+      fps = format["fps"].getInt
+      quality = format["quality"].getStr
+      qualityLabel = format["qualityLabel"].getStr
+      projectionType = format["projectionType"].getStr
+    except:
+      discard
+
+    mediaSeq.add(Media(
+      videoId: videoId,
+      title: title,
+      lengthSeconds: lengthSeconds,
+      itag: format["itag"].getInt,
+      mimeType: format["mimeType"].getStr,
+      bitrate: format["bitrate"].getInt,
+      audioSampleRate: audioSampleRate,
+      width: width,
+      height: height,
+      fps: fps,
+      audioQuality: audioQuality,
+      quality: quality,
+      qualityLabel: qualityLabel,
+      contentLength: format["contentLength"].getBiggestInt,
+      projectionType: projectionType,
+    ))
 
   return mediaSeq
 
