@@ -11,6 +11,7 @@ import
 import
   ../primitives/[randoms, inners],
   ../diagnostics/[envchk, logger],
+  ../flags/vidflags,
   ../models/downloadmods
 
 
@@ -138,7 +139,9 @@ proc downloadStream(
       let chunk = ^chunkFv
       outputStream.write(chunk.data)
       totalBytesWritten += chunk.data.len
-      LogInfo(fmt"Downloaded {totalBytesWritten}/{contentLength} bytes ({(totalBytesWritten.float / contentLength.float * 100):0.2f}%)")
+      LogInfo(
+        fmt"Downloaded {totalBytesWritten}/{contentLength} bytes ({(totalBytesWritten.float / contentLength.float * 100):0.2f}%)"
+      )
 
     LogInfo(fmt"Downloaded stream to {outputPath}")
 
@@ -168,26 +171,30 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
     let fullVideoInfo = getVideo(videoInfo)
     let audioDownloadUrl = fullVideoInfo[1]["url"].getStr()
     let videoName = fmt"{dlName}.mp4"
-    let tempVideoName = "temp_video.webm"
-    let tempAudioName = "temp_audio.weba"
 
     downloadUrl = fullVideoInfo[0]["url"].getStr()
 
-    downloadStream(downloadUrl, tempVideoName)
-    downloadStream(audioDownloadUrl, tempAudioName)
+    if GetHighQualMergeStatus():
+      let tempVideoName = "temp_video.webm"
+      let tempAudioName = "temp_audio.weba"
 
-    proc fallbackOp() = moveFile(tempVideoName, videoName)
+      downloadStream(downloadUrl, tempVideoName)
+      downloadStream(audioDownloadUrl, tempAudioName)
 
-    if CurrentSysHasFfmpeg():
-      let res = execCmdEx(
-        "ffmpeg -i {tempVideoName} -i {tempAudioName} -c:v copy -map 0:v:0 -map 1:a:0 -shortest \"{videoName}\" -y".fmt
-      )
-      if res.exitCode != 0:
-        LogInfo("Failed merge with exit code: ", res.exitCode, res.output)
+      proc fallbackOp() = moveFile(tempVideoName, videoName)
+
+      if CurrentSysHasFfmpeg():
+        let res = execCmdEx(
+          "ffmpeg -i {tempVideoName} -i {tempAudioName} -c:v copy -map 0:v:0 -map 1:a:0 -shortest \"{videoName}\" -y".fmt
+        )
+        if res.exitCode != 0:
+          LogInfo("Failed merge with exit code: ", res.exitCode, res.output)
+          fallbackOp()
+      else:
+        LogInfo("FFmpeg is not installed. Using initial downloaded stream instead of merging.")
         fallbackOp()
-    else:
-      LogInfo("FFmpeg is not installed. Using initial downloaded stream instead of merging.")
-      fallbackOp()
 
-    removeFile(tempVideoName)
-    removeFile(tempAudioName)
+      removeFile(tempVideoName)
+      removeFile(tempAudioName)
+    else:
+      downloadStream(downloadUrl, videoName)
