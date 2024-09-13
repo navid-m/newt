@@ -27,19 +27,6 @@ type
     formats*: seq[MediaFormat]
 
 
-proc showTable*(media: MediaFormat) =
-  var table: TerminalTable
-  table.add "Itag", $media.itag
-  table.add "Bitrate", $media.bitrate & " bps"
-  table.add "Mime Type", media.mimeType
-  table.add "Content Length", $media.contentLength & " bytes"
-  table.add "Audio Sample Rate", $media.audioSampleRate & " hz"
-  table.add "Audio Channels", $media.audioChannels
-  table.add "Projection Type", media.projectionType
-  table.add "Quality", media.quality
-  table.add "Audio Quality", media.audioQuality
-  table.echoTableSeps(seps = boxSeps)
-
 proc showAvailableFormats*(video: VideoInfo) =
   echo(
     "Available formats for: ",
@@ -67,4 +54,3 @@ proc showAvailableFormats*(video: VideoInfo) =
     )
 
   table.echoTableSeps(seps = boxSeps)
-
