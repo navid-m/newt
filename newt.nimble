@@ -5,7 +5,7 @@ author        = "Navid M"
 description   = "Python's yt-dlp ported to pure nim"
 license       = "MIT"
 srcDir        = "src"
-bin           = @["nytdlp"]
+bin           = @["newt"]
 
 # Dependencies
 

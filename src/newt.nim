@@ -1,7 +1,7 @@
 import
   os,
-  nytdlp/models/mediamods,
-  nytdlp/downloads/[dl, dlinf]
+  newt/models/mediamods,
+  newt/downloads/[dl, dlinf]
 
 
 export
@@ -13,7 +13,7 @@ export
 
 when isMainModule:
   if paramCount() < 1:
-    echo "usage: nytdlp [-v|-a] <yt video url>"
+    echo "usage: newt [-v|-a] <yt video url>"
     quit(1)
 
   let url = if paramCount() == 2: paramStr(2) else: paramStr(1)
