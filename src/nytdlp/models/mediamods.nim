@@ -5,13 +5,10 @@ import
 
 type
   MediaFormat* = object
-    videoId*: string
-    title*: string
     itag*: int
     fps*: int
     bitrate*: int64
     mimeType*: string
-    lengthSeconds*: int64
     contentLength*: int64
     audioSampleRate*: int64
     audioChannels*: int
@@ -37,8 +34,6 @@ proc asString*(media: MediaFormat): string =
   Bitrate          | {media.bitrate} bps
   ------------------------------------------------------------
   Mime Type        | {media.mimeType}
-  ------------------------------------------------------------
-  Length           | {media.lengthSeconds} seconds
   ------------------------------------------------------------
   Content Length   | {media.contentLength} bytes
   ------------------------------------------------------------
