@@ -160,6 +160,7 @@ proc getInnerStreamData*(url: string): VideoInfo =
     title: vidDetails["title"].getStr,
     lengthSeconds: vidDetails["lengthSeconds"].getStr.parseInt,
     author: vidDetails["author"].getStr,
+    channelId: vidDetails["channelId"].getStr,
     views: vidDetails["viewCount"].getStr.parseInt,
     private: vidDetails["isPrivate"].getBool,
     liveContent: vidDetails["isLiveContent"].getBool,

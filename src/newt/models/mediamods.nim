@@ -43,14 +43,14 @@ proc showVideoDetails*(video: VideoInfo) =
   )
   echo(
     &"Title: {video.title}",
-    &"\nVideo ID: {video.videoId}",
-    &"\nAuthor: {video.author}",
-    &"\nChannel ID: {video.channelId}",
     &"\nLength: {video.lengthSeconds div 60} minutes {video.lengthSeconds mod 60} seconds",
     &"\nViews: {video.views}",
+    &"\nVideo ID: {video.videoId}",
+    &"\nChannel ID: {video.channelId}",
     &"\nLive Content: " & ($video.liveContent),
-    &"\nPrivate: " & ($video.private),
     &"\nRatings Enabled: " & ($video.ratingsEnabled),
+    &"\nPrivate: " & ($video.private),
+    &"\nAuthor: {video.author}",
     &"\nDescription: {video.description}",
   )
   styledEcho(styleBright, repeat("─", 100))
