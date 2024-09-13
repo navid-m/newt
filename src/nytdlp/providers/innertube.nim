@@ -153,16 +153,18 @@ proc getInnerStreamData*(url: string): seq[Media] =
   let vidInf = getVideoInfo(url.split("=")[^1], newHttpClient())
   let videoId = vidInf["videoDetails"]["videoId"].getStr
   let title = vidInf["videoDetails"]["title"].getStr
-  let secLength = vidInf["videoDetails"]["lengthSeconds"].getInt
+  let secLength = vidInf["videoDetails"]["lengthSeconds"].getStr.parseInt
 
   var mediaSeq: seq[Media] = @[]
 
   for format in vidInf["streamingData"]["adaptiveFormats"].items:
     var audioSampleRate = 0
+    var audioChannels = 0
     var audioQuality = "N/A"
 
     try:
-      audioSampleRate = format["audioSampleRate"].getInt
+      audioSampleRate = format["audioSampleRate"].getStr.parseInt
+      audioChannels = format["audioChannels"].getInt
       audioQuality = format["audioQuality"].getStr
     except:
       discard
@@ -192,13 +194,14 @@ proc getInnerStreamData*(url: string): seq[Media] =
       mimeType: format["mimeType"].getStr,
       bitrate: format["bitrate"].getInt,
       audioSampleRate: audioSampleRate,
+      audioChannels: audioChannels,
       width: width,
       height: height,
       fps: fps,
       audioQuality: audioQuality,
       quality: quality,
       qualityLabel: qualityLabel,
-      contentLength: format["contentLength"].getBiggestInt,
+      contentLength: format["contentLength"].getStr.parseInt,
       projectionType: projectionType,
     ))
 
