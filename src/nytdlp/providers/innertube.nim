@@ -149,13 +149,15 @@ proc downloadStream(
     LogError("Error downloading stream: " & e.msg)
 
 
-proc getInnerStreamData*(url: string): seq[Media] =
+proc getInnerStreamData*(url: string): VideoInfo =
   let vidInf = getVideoInfo(url.split("=")[^1], newHttpClient())
-  let videoId = vidInf["videoDetails"]["videoId"].getStr
-  let title = vidInf["videoDetails"]["title"].getStr
-  let secLength = vidInf["videoDetails"]["lengthSeconds"].getStr.parseInt
 
-  var mediaSeq: seq[Media] = @[]
+  var video: VideoInfo
+  var mediaSeq: seq[MediaFormat] = @[]
+
+  video.videoId = vidInf["videoDetails"]["videoId"].getStr
+  video.title = vidInf["videoDetails"]["title"].getStr
+  video.lengthSeconds = vidInf["videoDetails"]["lengthSeconds"].getStr.parseInt
 
   for format in vidInf["streamingData"]["adaptiveFormats"].items:
     var audioSampleRate = 0
@@ -186,10 +188,7 @@ proc getInnerStreamData*(url: string): seq[Media] =
     except:
       discard
 
-    mediaSeq.add(Media(
-      videoId: videoId,
-      title: title,
-      lengthSeconds: secLength,
+    mediaSeq.add(MediaFormat(
       itag: format["itag"].getInt,
       mimeType: format["mimeType"].getStr,
       bitrate: format["bitrate"].getInt,
@@ -205,7 +204,9 @@ proc getInnerStreamData*(url: string): seq[Media] =
       projectionType: projectionType,
     ))
 
-  return mediaSeq
+  video.formats = mediaSeq
+
+  return video
 
 
 proc downloadInnerStream*(url: string, isAudio: bool) =

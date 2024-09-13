@@ -2,8 +2,9 @@ import
   strformat,
   nancy
 
+
 type
-  Media* = object
+  MediaFormat* = object
     videoId*: string
     title*: string
     itag*: int
@@ -21,13 +22,16 @@ type
     qualityLabel*: string
     audioQuality*: string
 
-proc asString*(media: Media): string =
+type
+  VideoInfo* = object
+    videoId*: string
+    title*: string
+    lengthSeconds*: int64
+    formats*: seq[MediaFormat]
+
+
+proc asString*(media: MediaFormat): string =
   result = fmt"""
-  ------------------------------------------------------------
-  Video ID         | {media.videoId}
-  ------------------------------------------------------------
-  Title            | {media.title}
-  ------------------------------------------------------------
   Itag             | {media.itag}
   ------------------------------------------------------------
   Bitrate          | {media.bitrate} bps
@@ -51,14 +55,11 @@ proc asString*(media: Media): string =
   """
 
 
-proc showTable*(media: Media) =
+proc showTable*(media: MediaFormat) =
   var table: TerminalTable
-  table.add "Video ID", media.videoId
-  table.add "Title", media.title
   table.add "Itag", $media.itag
   table.add "Bitrate", $media.bitrate & " bps"
   table.add "Mime Type", media.mimeType
-  table.add "Length", $media.lengthSeconds & " seconds"
   table.add "Content Length", $media.contentLength & " bytes"
   table.add "Audio Sample Rate", $media.audioSampleRate & " hz"
   table.add "Audio Channels", $media.audioChannels
