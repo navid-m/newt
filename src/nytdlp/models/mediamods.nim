@@ -40,8 +40,8 @@ proc showAvailableFormats*(video: VideoInfo) =
   var table: TerminalTable
 
   table.add(
-    "Itag", "Bitrate", "Mime Type", "Content Length",
-    "Audio Sample Rate", "Audio Channels", "Projection Type", "Quality", "Audio Quality"
+    "Itag", "Bitrate", "Mime Type", "Size", "Audio Sample Rate",
+    "Audio Channels", "Projection", "Quality", "Audio Quality", "FPS"
   )
 
   for format in video.formats:
@@ -54,7 +54,8 @@ proc showAvailableFormats*(video: VideoInfo) =
       $format.audioChannels,
       format.projectionType,
       format.quality,
-      format.audioQuality
+      format.audioQuality,
+      $format.fps
     )
 
   table.echoTableSeps(seps = boxSeps)
