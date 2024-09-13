@@ -21,8 +21,7 @@ when isMainModule:
   let isInfo = paramCount() == 1 or paramStr(1) == "-i"
 
   if isInfo:
-    for media in getMediaInfo(url).formats:
-      media.showTable()
+    getMediaInfo(url).showAvailableFormats()
     quit(0)
   if isAudio:
     downloadYtAudio(url)

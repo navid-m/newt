@@ -27,29 +27,6 @@ type
     formats*: seq[MediaFormat]
 
 
-proc asString*(media: MediaFormat): string =
-  result = fmt"""
-  Itag             | {media.itag}
-  ------------------------------------------------------------
-  Bitrate          | {media.bitrate} bps
-  ------------------------------------------------------------
-  Mime Type        | {media.mimeType}
-  ------------------------------------------------------------
-  Content Length   | {media.contentLength} bytes
-  ------------------------------------------------------------
-  Audio Sample Rate| {media.audioSampleRate} hz
-  ------------------------------------------------------------
-  Audio Channels   | {media.audioChannels}
-  ------------------------------------------------------------
-  Projection Type  | {media.projectionType}
-  ------------------------------------------------------------
-  Quality          | {media.quality}
-  ------------------------------------------------------------
-  Audio Quality    | {media.audioQuality}
-  ------------------------------------------------------------
-  """
-
-
 proc showTable*(media: MediaFormat) =
   var table: TerminalTable
   table.add "Itag", $media.itag
@@ -62,3 +39,32 @@ proc showTable*(media: MediaFormat) =
   table.add "Quality", media.quality
   table.add "Audio Quality", media.audioQuality
   table.echoTableSeps(seps = boxSeps)
+
+proc showAvailableFormats*(video: VideoInfo) =
+  echo(
+    "Available formats for: ",
+    video.title, &" [{video.videoId}]\n"
+  )
+
+  var table: TerminalTable
+
+  table.add(
+    "Itag", "Bitrate", "Mime Type", "Content Length",
+    "Audio Sample Rate", "Audio Channels", "Projection Type", "Quality", "Audio Quality"
+  )
+
+  for format in video.formats:
+    table.add(
+      $format.itag,
+      $format.bitrate & " bps",
+      format.mimeType,
+      $format.contentLength & " bytes",
+      $format.audioSampleRate & " hz",
+      $format.audioChannels,
+      format.projectionType,
+      format.quality,
+      format.audioQuality
+    )
+
+  table.echoTableSeps(seps = boxSeps)
+
