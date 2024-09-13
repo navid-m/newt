@@ -1,4 +1,6 @@
-import strformat
+import
+  strformat,
+  nancy
 
 type
   Media* = object
@@ -47,3 +49,20 @@ proc asString*(media: Media): string =
   Audio Quality    | {media.audioQuality}
   ------------------------------------------------------------
   """
+
+
+proc showTable*(media: Media) =
+  var table: TerminalTable
+  table.add "Video ID", media.videoId
+  table.add "Title", media.title
+  table.add "Itag", $media.itag
+  table.add "Bitrate", $media.bitrate & " bps"
+  table.add "Mime Type", media.mimeType
+  table.add "Length", $media.lengthSeconds & " seconds"
+  table.add "Content Length", $media.contentLength & " bytes"
+  table.add "Audio Sample Rate", $media.audioSampleRate & " hz"
+  table.add "Audio Channels", $media.audioChannels
+  table.add "Projection Type", media.projectionType
+  table.add "Quality", media.quality
+  table.add "Audio Quality", media.audioQuality
+  table.echoTableSeps(seps = boxSeps)

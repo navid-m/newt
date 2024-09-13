@@ -22,7 +22,7 @@ when isMainModule:
 
   if isInfo:
     for media in getMediaInfo(url):
-      echo media.asString()
+      media.showTable()
     quit(0)
   if isAudio:
     downloadYtAudio(url)
