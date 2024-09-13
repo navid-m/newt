@@ -3,7 +3,7 @@ import
   nytdlp/downloads/dl
 
 
-export downloadYtAudio, downloadYtVideo
+export downloadYtAudio, downloadYtVideo, downloadBestYtVideo
 
 
 when isMainModule:

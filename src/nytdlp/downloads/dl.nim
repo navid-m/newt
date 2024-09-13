@@ -1,6 +1,7 @@
 import
   ../providers/[ivtube, innertube],
-  ../diagnostics/logger
+  ../diagnostics/logger,
+  ../flags/vidflags
 
 
 proc downloadStream(url: string, isAudio: bool) =
@@ -16,3 +17,10 @@ proc downloadStream(url: string, isAudio: bool) =
 
 proc downloadYtAudio*(url: string) = downloadStream(url, true)
 proc downloadYtVideo*(url: string) = downloadStream(url, false)
+
+
+proc downloadBestYtVideo*(url: string) =
+  ## This finds the best audio and video stream and merges them using FFMPEG.
+  ## Requires FFMPEG to be installed.
+  UseHighQualityVideoMerging(true)
+  downloadYtVideo(url)
