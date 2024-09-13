@@ -11,8 +11,8 @@ import
 import
   ../primitives/[randoms, inners],
   ../diagnostics/[envchk, logger],
-  ../flags/vidflags,
-  ../models/downloadmods
+  ../models/[downloadmods, mediamods],
+  ../flags/vidflags
 
 
 proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
@@ -44,7 +44,7 @@ proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
 
 
 proc getAudio(videoInfo: JsonNode): JsonNode =
-  ## Get highest quality audio stream.
+  ## Get highest quality audio stream
   var bestStream: JsonNode = nil
   for stream in videoInfo["streamingData"]["adaptiveFormats"].items:
     if stream["mimeType"].getStr().startsWith("audio/"):
@@ -59,8 +59,11 @@ proc getAudio(videoInfo: JsonNode): JsonNode =
   return bestStream
 
 
+proc getAvailableStreamInfo(videoInfo: JsonNode): Media =
+  echo videoInfo
+
 proc getVideo(videoInfo: JsonNode): (JsonNode, JsonNode) =
-  ## Get highest quality video stream.
+  ## Get highest quality video stream
   var bestStream: JsonNode = nil
   for stream in videoInfo["streamingData"]["adaptiveFormats"].items:
     if stream["mimeType"].getStr().startsWith("video/"):
@@ -148,6 +151,10 @@ proc downloadStream(
   except HttpRequestError as e:
     LogError("Error downloading stream: " & e.msg)
 
+
+proc getInnerStreamData*(url: string) =
+  let vidinf = getVideoInfo(url.split("=")[^1], newHttpClient())
+  discard getAvailableStreamInfo(vidinf)
 
 proc downloadInnerStream*(url: string, isAudio: bool) =
   ## Main download procedure
