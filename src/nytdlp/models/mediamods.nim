@@ -36,6 +36,26 @@ type
     formats*: seq[MediaFormat]
 
 
+proc showVideoDetails*(video: VideoInfo) =
+  styledEcho(
+    styleBright, repeat("─", 100),
+    &"\nDetails for {video.videoId}\n", repeat("─", 100)
+  )
+  echo(
+    &"Title: {video.title}",
+    &"\nVideo ID: {video.videoId}",
+    &"\nAuthor: {video.author}",
+    &"\nChannel ID: {video.channelId}",
+    &"\nLength: {video.lengthSeconds div 60} minutes {video.lengthSeconds mod 60} seconds",
+    &"\nViews: {video.views}",
+    &"\nLive Content: " & ($video.liveContent),
+    &"\nPrivate: " & ($video.private),
+    &"\nRatings Enabled: " & ($video.ratingsEnabled),
+    &"\nDescription: {video.description}",
+  )
+  styledEcho(styleBright, repeat("─", 100))
+
+
 proc showAvailableFormats*(video: VideoInfo) =
   styledEcho(
     styleBright,

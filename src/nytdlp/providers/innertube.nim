@@ -152,9 +152,9 @@ proc downloadStream(
 proc getInnerStreamData*(url: string): VideoInfo =
   let vidInf = getVideoInfo(url.split("=")[^1], newHttpClient())
   let vidDetails = vidInf["videoDetails"]
+  let rawDesc = vidDetails["shortDescription"].getStr
 
   var mediaSeq: seq[MediaFormat] = @[]
-
   var video = VideoInfo(
     videoId: vidDetails["videoId"].getStr,
     title: vidDetails["title"].getStr,
@@ -163,7 +163,8 @@ proc getInnerStreamData*(url: string): VideoInfo =
     views: vidDetails["viewCount"].getStr.parseInt,
     private: vidDetails["isPrivate"].getBool,
     liveContent: vidDetails["isLiveContent"].getBool,
-    ratingsEnabled: vidDetails["allowRatings"].getBool
+    ratingsEnabled: vidDetails["allowRatings"].getBool,
+    description: rawDesc[0 ..< min(150, len(rawDesc))]
   )
 
   for format in vidInf["streamingData"]["adaptiveFormats"].items:
