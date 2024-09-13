@@ -153,17 +153,18 @@ proc getInnerStreamData*(url: string): VideoInfo =
   let vidInf = getVideoInfo(url.split("=")[^1], newHttpClient())
   let vidDetails = vidInf["videoDetails"]
 
-  var video: VideoInfo
   var mediaSeq: seq[MediaFormat] = @[]
 
-  video.videoId = vidDetails["videoId"].getStr
-  video.title = vidDetails["title"].getStr
-  video.lengthSeconds = vidDetails["lengthSeconds"].getStr.parseInt
-  video.author = vidDetails["author"].getStr
-  video.views = vidDetails["viewCount"].getStr.parseInt
-  video.private = vidDetails["isPrivate"].getBool
-  video.liveContent = vidDetails["isLiveContent"].getBool
-  video.ratingsEnabled = vidDetails["allowRatings"].getBool
+  var video = VideoInfo(
+    videoId: vidDetails["videoId"].getStr,
+    title: vidDetails["title"].getStr,
+    lengthSeconds: vidDetails["lengthSeconds"].getStr.parseInt,
+    author: vidDetails["author"].getStr,
+    views: vidDetails["viewCount"].getStr.parseInt,
+    private: vidDetails["isPrivate"].getBool,
+    liveContent: vidDetails["isLiveContent"].getBool,
+    ratingsEnabled: vidDetails["allowRatings"].getBool
+  )
 
   for format in vidInf["streamingData"]["adaptiveFormats"].items:
     var audioSampleRate = 0
