@@ -26,6 +26,13 @@ type
     videoId*: string
     title*: string
     lengthSeconds*: int64
+    views*: int
+    description*: string
+    author*: string
+    liveContent*: bool
+    private*: bool
+    ratingsEnabled*: bool
+    channelId*: string
     formats*: seq[MediaFormat]
 
 
