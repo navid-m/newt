@@ -2,7 +2,7 @@
 
 version       = "0.1.0"
 author        = "Navid M"
-description   = "Python's yt-dlp ported to pure nim"
+description   = "Youtube downloader library and CLI"
 license       = "MIT"
 srcDir        = "src"
 bin           = @["newt"]
