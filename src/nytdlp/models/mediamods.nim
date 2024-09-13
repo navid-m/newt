@@ -1,5 +1,7 @@
 import
   strformat,
+  strutils,
+  terminal,
   nancy
 
 
@@ -28,9 +30,11 @@ type
 
 
 proc showAvailableFormats*(video: VideoInfo) =
-  echo(
-    "Available formats for: ",
-    video.title, &" [{video.videoId}]\n"
+  styledEcho(
+    styleBright,
+    repeat("─", 100) & "\n" &
+    "Available formats for: " & video.title, &" [{video.videoId}]\n" &
+    repeat("─", 100) & "\n"
   )
 
   var table: TerminalTable
@@ -43,10 +47,10 @@ proc showAvailableFormats*(video: VideoInfo) =
   for format in video.formats:
     table.add(
       $format.itag,
-      $format.bitrate & " bps",
+      $format.bitrate,
       format.mimeType,
-      $format.contentLength & " bytes",
-      $format.audioSampleRate & " hz",
+      $format.contentLength,
+      $format.audioSampleRate,
       $format.audioChannels,
       format.projectionType,
       format.quality,
