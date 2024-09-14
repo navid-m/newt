@@ -240,17 +240,6 @@ proc getInnerStreamData*(url: string): VideoInfo =
   return video
 
 
-proc mapMimeToPlain(mime: string): string =
-  ## Map the mime type to the corresponding file extension
-  if "audio/mp4" in mime:
-    return "m4a"
-  if "video/mp4" in mime:
-    return "mp4"
-  if "audio/webm" in mime:
-    return "opus"
-  return "webm"
-
-
 proc downloadInnerStreamById*(url: string, id: int) =
   ## Download stream given the itag of the media, and the URL of the source
   let vidInf = getInnerStreamData(url)
