@@ -24,6 +24,11 @@ when isMainModule:
   let isInfo = paramStr(1) == "-f"
   let isGetById = paramStr(1) == "-df"
   let isVideoInfo = paramStr(1) == "-i"
+  let isVersion = paramStr(1) == "--version"
+
+  if isVersion:
+    echo "v1.0.0"
+    quit(0)
 
   if isVideo:
     if paramCount() < 2:
