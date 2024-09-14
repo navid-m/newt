@@ -242,11 +242,11 @@ proc getInnerStreamData*(url: string): VideoInfo =
 
 proc mapMimeToPlain(mime: string): string =
   ## Map the mime type to the corresponding file extension
-  if ("audio/mp4" in mime):
+  if "audio/mp4" in mime:
     return "m4a"
-  if ("video/mp4" in mime):
+  if "video/mp4" in mime:
     return "mp4"
-  if ("audio/webm" in mime):
+  if "audio/webm" in mime:
     return "opus"
   return "webm"
 
@@ -256,7 +256,7 @@ proc downloadInnerStreamById*(url: string, id: int) =
   let vidInf = getInnerStreamData(url)
   var success = false
   for format in vidInf.formats:
-    if (format.itag == id):
+    if format.itag == id:
       downloadStream(
         format.url,
         vidInf.title & "." &
