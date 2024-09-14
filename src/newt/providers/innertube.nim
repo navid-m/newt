@@ -241,6 +241,7 @@ proc getInnerStreamData*(url: string): VideoInfo =
 
 
 proc mapMimeToPlain(mime: string): string =
+  ## Map the mime type to the corresponding file extension
   if ("audio/mp4" in mime):
     return "m4a"
   if ("video/mp4" in mime):
