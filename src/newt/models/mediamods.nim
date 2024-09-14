@@ -8,6 +8,7 @@ import
 type
   MediaFormat* = object
     itag*: int
+    url*: string
     fps*: int
     bitrate*: int64
     mimeType*: string

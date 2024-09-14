@@ -199,6 +199,7 @@ proc getInnerStreamData*(url: string): VideoInfo =
 
     mediaSeq.add(MediaFormat(
       itag: format["itag"].getInt,
+      url: format["url"].getStr,
       mimeType: format["mimeType"].getStr,
       bitrate: format["bitrate"].getInt,
       audioSampleRate: audioSampleRate,
