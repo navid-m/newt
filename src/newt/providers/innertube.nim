@@ -9,7 +9,7 @@ import
   threadpool
 
 import
-  ../primitives/[randoms, inners],
+  ../primitives/[randoms, inners, texts],
   ../diagnostics/[envchk, logger],
   ../models/[downloadmods, mediamods],
   ../flags/vidflags
@@ -197,10 +197,13 @@ proc getInnerStreamData*(url: string): VideoInfo =
     except:
       discard
 
+    var (mimeType, codec) = parseMimeType(format["mimeType"].getStr)
+
     mediaSeq.add(MediaFormat(
       itag: format["itag"].getInt,
       url: format["url"].getStr,
-      mimeType: format["mimeType"].getStr,
+      mimeType: mimeType,
+      codec: codec,
       bitrate: format["bitrate"].getInt,
       audioSampleRate: audioSampleRate,
       audioChannels: audioChannels,

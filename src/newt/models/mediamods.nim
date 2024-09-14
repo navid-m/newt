@@ -12,6 +12,7 @@ type
     fps*: int
     bitrate*: int64
     mimeType*: string
+    codec*: string
     contentLength*: int64
     audioSampleRate*: int64
     audioChannels*: int
@@ -68,7 +69,7 @@ proc showAvailableFormats*(video: VideoInfo) =
   var table: TerminalTable
 
   table.add(
-    "Itag", "Bitrate", "Mime Type", "Size", "Audio Sample Rate",
+    "Itag", "Bitrate", "Mime Type", "Codec", "Size", "Audio Sample Rate",
     "Audio Channels", "Projection", "Quality", "Audio Quality", "FPS"
   )
 
@@ -77,6 +78,7 @@ proc showAvailableFormats*(video: VideoInfo) =
       $format.itag,
       $format.bitrate,
       format.mimeType,
+      format.codec,
       $format.contentLength,
       $format.audioSampleRate,
       $format.audioChannels,
