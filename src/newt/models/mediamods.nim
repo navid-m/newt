@@ -69,7 +69,7 @@ proc showAvailableFormats*(video: VideoInfo) =
   var table: TerminalTable
 
   table.add(
-    "Itag", "Bitrate", "Mime Type", "Codec", "Size", "Audio Sample Rate",
+    "ID", "Bitrate", "Mime Type", "Codec", "Size", "Audio Sample Rate",
     "Audio Channels", "Projection", "Quality", "Audio Quality", "FPS"
   )
 
