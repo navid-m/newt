@@ -40,7 +40,6 @@ when isMainModule:
     if paramCount() < 2:
       echo "Invalid param count."
       quit(1)
-
     downloadYtVideo(url)
 
   if isInfo:
