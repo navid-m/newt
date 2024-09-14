@@ -1,6 +1,7 @@
 import
   os,
   strutils,
+  newt/meta/info,
   newt/models/mediamods,
   newt/downloads/[dl, dlinf]
 
@@ -25,9 +26,14 @@ when isMainModule:
   let isGetById = paramStr(1) == "-df"
   let isVideoInfo = paramStr(1) == "-i"
   let isVersion = paramStr(1) == "--version"
+  let isAbout = paramStr(1) == "--about"
 
   if isVersion:
-    echo "v1.0.0"
+    echo(getVersion())
+    quit(0)
+
+  if isAbout:
+    showAbout()
     quit(0)
 
   if isVideo:
