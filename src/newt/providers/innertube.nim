@@ -150,11 +150,13 @@ proc downloadStream(
 
 
 proc getInnerStreamData*(url: string): VideoInfo =
+  ## Get the corresponding VideoInfo given the video URL
   let vidInf = getVideoInfo(url.split("=")[^1], newHttpClient())
   let vidDetails = vidInf["videoDetails"]
   let rawDesc = vidDetails["shortDescription"].getStr
 
   var mediaSeq: seq[MediaFormat] = @[]
+  var lastKnownAdaptiveClength = 0
 
   var video = VideoInfo(
     videoId: vidDetails["videoId"].getStr,
@@ -168,8 +170,6 @@ proc getInnerStreamData*(url: string): VideoInfo =
     ratingsEnabled: vidDetails["allowRatings"].getBool,
     description: rawDesc[0 ..< min(150, len(rawDesc))]
   )
-
-  var lastKnownAdaptiveClength = 0
 
   proc populateFormatsViaIdentifier(formatLookupIdentifier: string) =
     for format in vidInf["streamingData"][formatLookupIdentifier].items:
