@@ -59,10 +59,10 @@ proc getAudio(videoInfo: JsonNode): JsonNode =
   return bestStream
 
 
-proc getVideo(videoInfo: JsonNode): (JsonNode, JsonNode) =
+proc getVideo(videoInfo: JsonNode, filter = "adaptiveFormats"): (JsonNode, JsonNode) =
   ## Get highest quality video stream
   var bestStream: JsonNode = nil
-  for stream in videoInfo["streamingData"]["adaptiveFormats"].items:
+  for stream in videoInfo["streamingData"][filter].items:
     if stream["mimeType"].getStr().startsWith("video/"):
       if bestStream.isNil or (
         stream["bitrate"].getInt() > bestStream["bitrate"].getInt()
@@ -289,7 +289,12 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
     downloadUrl = audioInfo["url"].getStr()
     downloadStream(downloadUrl, fmt"{dlName}.weba")
   else:
-    let fullVideoInfo = getVideo(videoInfo)
+    var filter = "formats"
+
+    if GetHighQualMergeStatus():
+      filter = "adaptiveFormats"
+
+    let fullVideoInfo = getVideo(videoInfo, filter)
     let audioDownloadUrl = fullVideoInfo[1]["url"].getStr()
     let videoName = fmt"{dlName}.mp4"
 
