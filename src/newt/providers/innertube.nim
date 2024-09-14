@@ -168,54 +168,71 @@ proc getInnerStreamData*(url: string): VideoInfo =
     description: rawDesc[0 ..< min(150, len(rawDesc))]
   )
 
-  for format in vidInf["streamingData"]["adaptiveFormats"].items:
-    var audioSampleRate = 0
-    var audioChannels = 0
-    var audioQuality = "N/A"
+  var lastKnownAdaptiveClength = 0
 
-    try:
-      audioSampleRate = format["audioSampleRate"].getStr.parseInt
-      audioChannels = format["audioChannels"].getInt
-      audioQuality = format["audioQuality"].getStr
-    except:
-      discard
+  proc populateFormatsViaIdentifier(formatLookupIdentifier: string) =
+    for format in vidInf["streamingData"][formatLookupIdentifier].items:
+      var audioSampleRate = 0
+      var audioChannels = 0
+      var audioQuality = "N/A"
 
-    var width = 0
-    var height = 0
-    var fps = 0
-    var quality = "N/A"
-    var qualityLabel = "N/A"
-    var projectionType = "N/A"
+      try:
+        audioSampleRate = format["audioSampleRate"].getStr.parseInt
+        audioChannels = format["audioChannels"].getInt
+        audioQuality = format["audioQuality"].getStr
+      except:
+        discard
 
-    try:
-      width = format["width"].getInt
-      height = format["height"].getInt
-      fps = format["fps"].getInt
-      quality = format["quality"].getStr
-      qualityLabel = format["qualityLabel"].getStr
-      projectionType = format["projectionType"].getStr
-    except:
-      discard
+      var width = 0
+      var height = 0
+      var fps = 0
+      var quality = "N/A"
+      var qualityLabel = "N/A"
+      var projectionType = "N/A"
+      var currentAdaptiveClength = 0
 
-    var (mimeType, codec) = parseMimeType(format["mimeType"].getStr)
+      try:
+        width = format["width"].getInt
+        height = format["height"].getInt
+        fps = format["fps"].getInt
+        quality = format["quality"].getStr
+        qualityLabel = format["qualityLabel"].getStr
+        projectionType = format["projectionType"].getStr
+      except:
+        discard
 
-    mediaSeq.add(MediaFormat(
-      itag: format["itag"].getInt,
-      url: format["url"].getStr,
-      mimeType: mimeType,
-      codec: codec,
-      bitrate: format["bitrate"].getInt,
-      audioSampleRate: audioSampleRate,
-      audioChannels: audioChannels,
-      width: width,
-      height: height,
-      fps: fps,
-      audioQuality: audioQuality,
-      quality: quality,
-      qualityLabel: qualityLabel,
-      contentLength: format["contentLength"].getStr.parseInt,
-      projectionType: projectionType,
-    ))
+      try:
+        currentAdaptiveClength = format["contentLength"].getStr.parseInt
+      except:
+        discard
+
+      if (currentAdaptiveClength != 0):
+        lastKnownAdaptiveClength = currentAdaptiveClength
+      else:
+        currentAdaptiveClength = lastKnownAdaptiveClength
+
+      var (mimeType, codec) = parseMimeType(format["mimeType"].getStr)
+
+      mediaSeq.add(MediaFormat(
+        itag: format["itag"].getInt,
+        url: format["url"].getStr,
+        mimeType: mimeType,
+        codec: codec.replace(", ", " + "),
+        bitrate: format["bitrate"].getInt,
+        audioSampleRate: audioSampleRate,
+        audioChannels: audioChannels,
+        width: width,
+        height: height,
+        fps: fps,
+        audioQuality: audioQuality,
+        quality: quality,
+        qualityLabel: qualityLabel,
+        contentLength: currentAdaptiveClength,
+        projectionType: projectionType,
+      ))
+
+  populateFormatsViaIdentifier("adaptiveFormats")
+  populateFormatsViaIdentifier("formats")
 
   video.formats = mediaSeq
 
