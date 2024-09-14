@@ -17,6 +17,7 @@ proc downloadStream(url: string, isAudio: bool) =
 
 proc downloadYtAudio*(url: string) = downloadStream(url, true)
 proc downloadYtVideo*(url: string) = downloadStream(url, false)
+proc downloadYtStreamById*(url: string, id: int) = downloadInnerStreamById(url, id)
 
 
 proc downloadBestYtVideo*(url: string) =

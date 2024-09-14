@@ -1,5 +1,6 @@
 import
   os,
+  strutils,
   newt/models/mediamods,
   newt/downloads/[dl, dlinf]
 
@@ -7,6 +8,7 @@ import
 export
   downloadYtAudio,
   downloadYtVideo,
+  downloadYtStreamById,
   downloadBestYtVideo,
   getMediaInfo
 
@@ -19,6 +21,7 @@ when isMainModule:
   let url = if paramCount() == 2: paramStr(2) else: paramStr(1)
   let isAudio = paramCount() == 1 or paramStr(1) == "-a"
   let isInfo = paramStr(1) == "-f"
+  let isGetById = paramStr(1) == "-df"
   let isVideoInfo = paramStr(1) == "-i"
 
   if isInfo:
@@ -29,6 +32,17 @@ when isMainModule:
     quit(0)
   if isAudio:
     downloadYtAudio(url)
+    quit(0)
+  if isGetById:
+    if paramCount() > 2:
+      try:
+        downloadYtStreamById(paramStr(2), paramStr(3).parseInt)
+      except:
+        echo("Error during YTS processing: ", getCurrentException().msg)
+        quit(1)
+    else:
+      echo "Invalid paramater count."
+      quit(1)
     quit(0)
 
   downloadYtVideo(url)

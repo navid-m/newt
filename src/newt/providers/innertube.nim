@@ -240,12 +240,41 @@ proc getInnerStreamData*(url: string): VideoInfo =
   return video
 
 
+proc mapMimeToPlain(mime: string): string =
+  if ("audio/mp4" in mime):
+    return "m4a"
+  if ("video/mp4" in mime):
+    return "mp4"
+  if ("audio/webm" in mime):
+    return "opus"
+  return "webm"
+
+
+proc downloadInnerStreamById*(url: string, id: int) =
+  ## Download stream given the itag of the media, and the URL of the source
+  let vidInf = getInnerStreamData(url)
+  var success = false
+  for format in vidInf.formats:
+    if (format.itag == id):
+      downloadStream(
+        format.url,
+        vidInf.title & "." &
+        mapMimeToPlain(
+          format.mimeType
+        )
+      )
+      success = true
+      break
+  if not success:
+    raise newException(ValueError, "Could not find corresponding tag")
+
+
 proc downloadInnerStream*(url: string, isAudio: bool) =
   ## Main download procedure
   let videoId = url.split("=")[^1]
   let videoInfo = getVideoInfo(videoId, newHttpClient())
-  let dlName = videoInfo["videoDetails"]["title"].str & " [" & videoInfo[
-      "videoDetails"]["videoId"].str & "]"
+  let dlName = videoInfo["videoDetails"]["title"].str &
+    " [" & videoInfo["videoDetails"]["videoId"].str & "]"
 
   if videoInfo.isNil:
     raise newException(ValueError, "Failed to retrieve video information")
