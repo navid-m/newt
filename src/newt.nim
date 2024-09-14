@@ -15,7 +15,7 @@ export
 
 when isMainModule:
   if paramCount() < 1:
-    echo "usage: newt [-v|-a] <yt video url>"
+    echo "usage: newt [-v|-a|-f|-df|-i] <yt video url> <extra options>"
     quit(1)
 
   let url = if paramCount() == 2: paramStr(2) else: paramStr(1)
