@@ -20,19 +20,20 @@ when isMainModule:
 
   let url = if paramCount() == 2: paramStr(2) else: paramStr(1)
   let isAudio = paramCount() == 1 or paramStr(1) == "-a"
+  let isVideo = paramStr(1) == "-v"
   let isInfo = paramStr(1) == "-f"
   let isGetById = paramStr(1) == "-df"
   let isVideoInfo = paramStr(1) == "-i"
 
   if isInfo:
     getVideoInfo(url).showAvailableFormats()
-    quit(0)
+
   if isVideoInfo:
     getVideoInfo(url).showVideoDetails()
-    quit(0)
+
   if isAudio:
     downloadYtAudio(url)
-    quit(0)
+
   if isGetById:
     if paramCount() > 2:
       try:
@@ -41,8 +42,12 @@ when isMainModule:
         echo("Error during YTS processing: ", getCurrentException().msg)
         quit(1)
     else:
-      echo "Invalid paramater count."
+      echo "Invalid param count."
       quit(1)
-    quit(0)
 
-  downloadYtVideo(url)
+  if isVideo:
+    if paramCount() < 2:
+      echo "Invalid param count."
+      quit(1)
+
+    downloadYtVideo(url)
