@@ -2,4 +2,4 @@ import
   ../providers/[innertube],
   ../models/mediamods
 
-proc getMediaInfo*(url: string): VideoInfo = getInnerStreamData(url)
+proc getVideoInfo*(url: string): VideoInfo = getInnerStreamData(url)

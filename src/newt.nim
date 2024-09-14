@@ -10,7 +10,7 @@ export
   downloadYtVideo,
   downloadYtStreamById,
   downloadBestYtVideo,
-  getMediaInfo
+  getVideoInfo
 
 
 when isMainModule:
@@ -25,10 +25,10 @@ when isMainModule:
   let isVideoInfo = paramStr(1) == "-i"
 
   if isInfo:
-    getMediaInfo(url).showAvailableFormats()
+    getVideoInfo(url).showAvailableFormats()
     quit(0)
   if isVideoInfo:
-    getMediaInfo(url).showVideoDetails()
+    getVideoInfo(url).showVideoDetails()
     quit(0)
   if isAudio:
     downloadYtAudio(url)
