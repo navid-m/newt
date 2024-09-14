@@ -155,6 +155,7 @@ proc getInnerStreamData*(url: string): VideoInfo =
   let rawDesc = vidDetails["shortDescription"].getStr
 
   var mediaSeq: seq[MediaFormat] = @[]
+
   var video = VideoInfo(
     videoId: vidDetails["videoId"].getStr,
     title: vidDetails["title"].getStr,
