@@ -15,7 +15,7 @@ export
 
 when isMainModule:
   if paramCount() < 1:
-    echo "usage: newt [-v|-a|-f|-df|-i] <yt video url> <extra options>"
+    echo "usage: newt [-v|-a|-f|-df|-i] <yt video url> <options>"
     quit(1)
 
   let url = if paramCount() == 2: paramStr(2) else: paramStr(1)
@@ -24,6 +24,13 @@ when isMainModule:
   let isInfo = paramStr(1) == "-f"
   let isGetById = paramStr(1) == "-df"
   let isVideoInfo = paramStr(1) == "-i"
+
+  if isVideo:
+    if paramCount() < 2:
+      echo "Invalid param count."
+      quit(1)
+
+    downloadYtVideo(url)
 
   if isInfo:
     getVideoInfo(url).showAvailableFormats()
@@ -44,10 +51,3 @@ when isMainModule:
     else:
       echo "Invalid param count."
       quit(1)
-
-  if isVideo:
-    if paramCount() < 2:
-      echo "Invalid param count."
-      quit(1)
-
-    downloadYtVideo(url)
