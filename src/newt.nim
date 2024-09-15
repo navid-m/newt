@@ -40,11 +40,9 @@ when isMainModule:
 
   if isVersion:
     echo(getVersion())
-    quit(0)
 
   if isAbout:
     showAbout()
-    quit(0)
 
   if isVideo:
     if paramCount() < 2:
@@ -58,7 +56,7 @@ when isMainModule:
   if isVideoInfo:
     getVideoInfo(url).showVideoDetails()
 
-  if isAudio:
+  if isAudio and (paramStr(1).startsWith("http") or paramStr(2).startsWith("http")):
     downloadYtAudio(url)
 
   if isGetById:
