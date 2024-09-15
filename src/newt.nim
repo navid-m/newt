@@ -42,9 +42,13 @@ when isMainModule:
   if isVersion: showVersion(); quit(0)
   if isAbout: showAbout(); quit(0)
 
-  if (isVideo or isInfo or isGetById or isVideoInfo) and paramCount() < 2:
+  if (
+    (isVideo or isInfo or isGetById or isVideoInfo) and paramCount() < 2) or
+    (isAudio and paramCount() == 1 and not paramStr(1).startsWith("http")
+  ):
     echo "Invalid params."
     quit(1)
+
 
   if isVideo:
     downloadYtVideo(url)
