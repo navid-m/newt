@@ -63,25 +63,31 @@ type
 #### **Download YouTube Video**
 
 ```bash
-newt -v <yt video url>
+newt -v <yt-video-url>
 ```
 
 #### **Download YouTube Audio**
 
 ```bash
-newt -a <yt video url>
+newt -a <yt-video-url>
 ```
 
 #### **Get List of Available Formats**
 
 ```bash
-newt -f <yt video url>
+newt -f <yt-video-url>
+```
+
+#### **Download By Specific Format**
+
+```bash
+newt -f <yt-video-url> <format-id>
 ```
 
 #### **Get Video Details**
 
 ```bash
-newt -i <yt video url>
+newt -i <yt-video-url>
 ```
 
 ---
