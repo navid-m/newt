@@ -43,7 +43,7 @@ when isMainModule:
   if isAbout: showAbout(); quit(0)
 
   if (isVideo or isInfo or isGetById or isVideoInfo) and paramCount() < 2:
-    echo "Invalid param count."
+    echo "Invalid params."
     quit(1)
 
   if isVideo:
