@@ -39,13 +39,8 @@ when isMainModule:
     isVersion = paramStr(1) == "--version"
     isAbout = paramStr(1) == "--about"
 
-  if isVersion:
-    showVersion()
-    quit(0)
-
-  if isAbout:
-    showAbout()
-    quit(0)
+  if isVersion: showVersion(); quit(0)
+  if isAbout: showAbout(); quit(0)
 
   if isVideo:
     if paramCount() < 2:
