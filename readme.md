@@ -7,7 +7,7 @@ YouTube downloader library and command-line interface (CLI) built on Nim.
 ```nim
 import newt
 
-# Is false by default
+# False by default
 announceLogs(true)
 
 # Get the info corresponding to the provided URL
