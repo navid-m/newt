@@ -1,6 +1,8 @@
 import
   os,
   strutils,
+  strformat,
+  sugar,
   newt/filters/format,
   newt/meta/info,
   newt/diagnostics/logger,
@@ -26,7 +28,7 @@ export
 
 when isMainModule:
   if paramCount() < 1:
-    echo "usage: newt [-v|-a|-f|-df|-i] <video-url> <options>"
+    echo("usage: newt [-v|-a|-f|-df|-i] <video-url> <options>")
     quit(1)
 
   let
@@ -39,32 +41,39 @@ when isMainModule:
     isVersion = paramStr(1) == "--version"
     isAbout = paramStr(1) == "--about"
 
-  if isVersion: showVersion(); quit(0)
-  if isAbout: showAbout(); quit(0)
+  if isVersion:
+    showVersion()
+    quit(0)
+
+  if isAbout:
+    showAbout()
+    quit(0)
 
   if (
     (isVideo or isInfo or isGetById or isVideoInfo) and paramCount() < 2) or
     (isAudio and paramCount() == 1 and not paramStr(1).startsWith("http")
   ):
-    echo "Invalid params."
+    echo("Invalid params.")
     quit(1)
 
+  proc doAction(action: proc(), cstring = "Error") =
+    try:
+      action()
+    except:
+      echo(&"{cstring}: ", getCurrentException().msg)
+      quit(1)
 
   if isVideo:
-    downloadYtVideo(url)
+    doAction(() => downloadYtVideo(url))
 
   if isInfo:
-    getVideoInfo(url).showAvailableFormats()
+    doAction(() => getVideoInfo(url).showAvailableFormats())
 
   if isVideoInfo:
-    getVideoInfo(url).showVideoDetails()
+    doAction(() => getVideoInfo(url).showVideoDetails())
 
   if isAudio:
-    downloadYtAudio(url)
+    doAction(() => downloadYtAudio(url))
 
   if isGetById:
-    try:
-      downloadYtStreamById(paramStr(2), paramStr(3).parseInt)
-    except:
-      echo("Error during YTS processing: ", getCurrentException().msg)
-      quit(1)
+    doAction(() => downloadYtStreamById(paramStr(2), paramStr(3).parseInt), "Error during YTS processing")

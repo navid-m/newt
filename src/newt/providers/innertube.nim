@@ -152,7 +152,12 @@ proc downloadStream*(
 proc getInnerStreamData*(url: string): VideoInfo =
   ## Get the corresponding VideoInfo given the video URL
   let vidInf = getVideoInfo(url.split("=")[^1], newHttpClient())
-  let vidDetails = vidInf["videoDetails"]
+  var vidDetails: JsonNode
+
+  try:
+    vidDetails = vidInf["videoDetails"]
+  except:
+    raise newException(CatchableError, &"No details found for {url}")
 
   var mediaSeq: seq[MediaFormat] = @[]
   var lastKnownAdaptiveClength = 0
