@@ -43,6 +43,11 @@ proc showVideoDetails*(video: VideoInfo) =
     styleBright, repeat("─", 100),
     &"\nDetails for {video.videoId}\n", repeat("─", 100)
   )
+
+  var descToShow = video.description.split(".")[0]
+  if (len(video.description) > 82):
+    descToShow = descToShow & "..."
+
   echo(
     &"Title: {video.title}",
     &"\nLength: {video.lengthSeconds div 60} minutes {video.lengthSeconds mod 60} seconds",
@@ -53,7 +58,7 @@ proc showVideoDetails*(video: VideoInfo) =
     &"\nLive Content: " & ($video.liveContent),
     &"\nPrivate: " & ($video.private),
     &"\nAuthor: {video.author}",
-    &"\nDescription: {video.description}",
+    &"\nDescription: {descToShow}",
   )
   styledEcho(styleBright, repeat("─", 100))
 
