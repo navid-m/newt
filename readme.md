@@ -78,10 +78,10 @@ newt -a <yt-video-url>
 newt -f <yt-video-url>
 ```
 
-#### **Download By Specific Format**
+#### **Download by Specific Format**
 
 ```bash
-newt -f <yt-video-url> <format-id>
+newt -df <yt-video-url> <format-id>
 ```
 
 #### **Get Video Details**
