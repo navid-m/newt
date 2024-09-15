@@ -42,10 +42,11 @@ when isMainModule:
   if isVersion: showVersion(); quit(0)
   if isAbout: showAbout(); quit(0)
 
+  if (isVideo or isInfo or isGetById or isVideoInfo) and paramCount() < 2:
+    echo "Invalid param count."
+    quit(1)
+
   if isVideo:
-    if paramCount() < 2:
-      echo "Invalid param count."
-      quit(1)
     downloadYtVideo(url)
 
   if isInfo:
@@ -58,12 +59,8 @@ when isMainModule:
     downloadYtAudio(url)
 
   if isGetById:
-    if paramCount() > 2:
-      try:
-        downloadYtStreamById(paramStr(2), paramStr(3).parseInt)
-      except:
-        echo("Error during YTS processing: ", getCurrentException().msg)
-        quit(1)
-    else:
-      echo "Invalid param count."
+    try:
+      downloadYtStreamById(paramStr(2), paramStr(3).parseInt)
+    except:
+      echo("Error during YTS processing: ", getCurrentException().msg)
       quit(1)
