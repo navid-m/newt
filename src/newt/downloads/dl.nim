@@ -10,7 +10,7 @@ proc downloadStream(url: string, isAudio: bool) =
   try:
     downloadInnerStream(url, isAudio)
   except:
-    LogInfo(
+    logInfo(
       "Falling back to IV, as Innertube request failed. Only video can be downloaded this way",
       "Details:", getCurrentException().msg
     )
@@ -31,5 +31,5 @@ proc downloadYtStreamByFormat*(
 proc downloadBestYtVideo*(url: string) =
   ## This finds the best audio and video stream and merges them using FFMPEG.
   ## Requires FFMPEG to be installed.
-  UseHighQualityVideoMerging(true)
+  useHighQualityVideoMerging(true)
   downloadYtVideo(url)

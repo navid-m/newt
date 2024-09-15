@@ -3,7 +3,7 @@ import
   strutils
 
 
-proc CurrentSysHasFfmpeg*(): bool =
+proc currentSysHasFfmpeg*(): bool =
   try:
     let res = execCmdEx("ffmpeg -version")
     return res.exitCode == 0 and res.output.toLower().contains("ffmpeg version")

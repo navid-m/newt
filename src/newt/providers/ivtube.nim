@@ -50,8 +50,8 @@ proc downloadIvStream*(videoURL: string, outputPath: string = "") =
     outputPathToUse = fmt"{videoID}.mp4"
 
   if videoLink.len == 0:
-    LogError("Could not find a valid video link.")
+    logError("Could not find a valid video link.")
     return
 
   writeFile(outputPathToUse, PrimaryClient.getContent(videoLink))
-  LogInfo(fmt"Video downloaded as {outputPathToUse}")
+  logInfo(fmt"Video downloaded as {outputPathToUse}")

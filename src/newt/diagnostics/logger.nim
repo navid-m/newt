@@ -1,18 +1,18 @@
 import terminal
 
 
-var LoudLogger = false;
-var SuppressErrors = false;
+var loudLogger = false;
+var suppressErrors = false;
 
 
-proc AnnounceYTLogs*(loud: bool) = LoudLogger = loud
+proc announceYtLogs*(loud: bool) = loudLogger = loud
 
 
-proc LogInfo*(info: varargs[string, `$`]) =
-    if LoudLogger:
+proc logInfo*(info: varargs[string, `$`]) =
+    if loudLogger:
         echo info
 
 
-proc LogError*(error: string) =
-    if not SuppressErrors:
+proc logError*(error: string) =
+    if not suppressErrors:
         styledEcho(fgRed, error)

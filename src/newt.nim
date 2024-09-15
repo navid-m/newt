@@ -18,10 +18,10 @@ export
   showVideoDetails,
   getVideoInfo,
   getBestFormat,
+  announceYtLogs,
   MediaFormat,
   VideoInfo,
-  FormatType,
-  AnnounceYTLogs
+  FormatType
 
 
 when isMainModule:

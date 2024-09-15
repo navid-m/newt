@@ -1,4 +1,4 @@
 var highQualMerging = false
 
-proc UseHighQualityVideoMerging*(toggle: bool) = highQualMerging = toggle
-proc GetHighQualMergeStatus*(): bool = highQualMerging
+proc useHighQualityVideoMerging*(toggle: bool) = highQualMerging = toggle
+proc getHighQualMergeStatus*(): bool = highQualMerging

@@ -37,7 +37,7 @@ proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
     let payload = buildInnertubePayload(videoId)
     response = client.postContent(url, $payload)
   except HttpRequestError as e:
-    LogError("Error fetching video info: " & e.msg)
+    logError("Error fetching video info: " & e.msg)
     return nil
 
   return parseJson(response)
@@ -96,7 +96,7 @@ proc downloadStream*(
 ) =
   ## Download the whole stream
   try:
-    LogInfo("Downloading: " & downloadUrl & " to " & outputPath)
+    logInfo("Downloading: " & downloadUrl & " to " & outputPath)
 
     let client = newHttpClient()
     const chunkSize = 1024 * 1024 * 5
@@ -139,14 +139,14 @@ proc downloadStream*(
       let chunk = ^chunkFv
       outputStream.write(chunk.data)
       totalBytesWritten += chunk.data.len
-      LogInfo(
+      logInfo(
         fmt"Downloaded {totalBytesWritten}/{contentLength} bytes ({(totalBytesWritten.float / contentLength.float * 100):0.2f}%)"
       )
 
-    LogInfo(fmt"Downloaded stream to {outputPath}")
+    logInfo(fmt"Downloaded stream to {outputPath}")
 
   except HttpRequestError as e:
-    LogError("Error downloading stream: " & e.msg)
+    logError("Error downloading stream: " & e.msg)
 
 
 proc getInnerStreamData*(url: string): VideoInfo =
@@ -271,7 +271,7 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
 
   var downloadUrl: string
 
-  LogInfo("Getting highest quality stream...")
+  logInfo("Getting highest quality stream...")
 
   if isAudio:
     let audioInfo = getAudio(videoInfo)
@@ -280,7 +280,7 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
   else:
     var filter = "formats"
 
-    if GetHighQualMergeStatus():
+    if getHighQualMergeStatus():
       filter = "adaptiveFormats"
 
     let fullVideoInfo = getVideo(videoInfo, filter)
@@ -289,7 +289,7 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
 
     downloadUrl = fullVideoInfo[0]["url"].getStr()
 
-    if GetHighQualMergeStatus():
+    if getHighQualMergeStatus():
       let tempVideoName = "temp_video.webm"
       let tempAudioName = "temp_audio.weba"
 
@@ -298,15 +298,15 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
 
       proc fallbackOp() = moveFile(tempVideoName, videoName)
 
-      if CurrentSysHasFfmpeg():
+      if currentSysHasFfmpeg():
         let res = execCmdEx(
           "ffmpeg -i {tempVideoName} -i {tempAudioName} -c:v copy -map 0:v:0 -map 1:a:0 -shortest \"{videoName}\" -y".fmt
         )
         if res.exitCode != 0:
-          LogInfo("Failed merge with exit code: ", res.exitCode, res.output)
+          logInfo("Failed merge with exit code: ", res.exitCode, res.output)
           fallbackOp()
       else:
-        LogInfo("FFmpeg is not installed. Using initial downloaded stream instead of merging.")
+        logInfo("FFmpeg is not installed. Using initial downloaded stream instead of merging.")
         fallbackOp()
 
       removeFile(tempVideoName)
