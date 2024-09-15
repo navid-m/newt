@@ -1,7 +1,9 @@
 import
-  ../providers/[ivtube, innertube],
+  ../primitives/texts,
+  ../models/mediamods,
   ../diagnostics/logger,
-  ../flags/vidflags
+  ../flags/vidflags,
+  ../providers/[ivtube, innertube]
 
 
 proc downloadStream(url: string, isAudio: bool) =
@@ -18,7 +20,13 @@ proc downloadStream(url: string, isAudio: bool) =
 proc downloadYtAudio*(url: string) = downloadStream(url, true)
 proc downloadYtVideo*(url: string) = downloadStream(url, false)
 proc downloadYtStreamById*(url: string, id: int) = downloadInnerStreamById(url, id)
-
+proc downloadYtStreamByFormat*(
+  form: MediaFormat,
+  fnameWithoutExtension: string) =
+  innertube.downloadStream(
+    form.url,
+    fnameWithoutExtension & "." & mapMimeToPlain(form.mimeType)
+  )
 
 proc downloadBestYtVideo*(url: string) =
   ## This finds the best audio and video stream and merges them using FFMPEG.

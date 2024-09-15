@@ -90,7 +90,7 @@ proc downloadChunk(url: string, start, ender: int): DownloadChunk =
   result = DownloadChunk(start: start, ender: ender, data: client.get(url).body)
 
 
-proc downloadStream(
+proc downloadStream*(
     downloadUrl: string,
     outputPath: string
 ) =

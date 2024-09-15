@@ -1,8 +1,10 @@
 import
   os,
   strutils,
+  newt/filters/format,
   newt/meta/info,
-  newt/models/mediamods,
+  newt/diagnostics/logger,
+  newt/models/[mediamods, filtermods],
   newt/downloads/[dl, dlinf]
 
 
@@ -10,8 +12,16 @@ export
   downloadYtAudio,
   downloadYtVideo,
   downloadYtStreamById,
+  downloadYtStreamByFormat,
   downloadBestYtVideo,
-  getVideoInfo
+  showAvailableFormats,
+  showVideoDetails,
+  getVideoInfo,
+  getBestFormat,
+  MediaFormat,
+  VideoInfo,
+  FormatType,
+  AnnounceYTLogs
 
 
 when isMainModule:
