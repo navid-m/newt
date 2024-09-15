@@ -1,6 +1,6 @@
 import newt
 
-announceYtLogs(true)
+announceLogs(true)
 
 let vidInf = newt.getVideoInfo("https://www.youtube.com/watch?v=5ANuXhk9qWM")
 let bestAudioFormat = newt.getBestFormat(vidInf.formats, FormatType.audio)

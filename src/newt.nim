@@ -18,7 +18,7 @@ export
   showVideoDetails,
   getVideoInfo,
   getBestFormat,
-  announceYtLogs,
+  announceLogs,
   MediaFormat,
   VideoInfo,
   FormatType
