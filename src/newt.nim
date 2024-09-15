@@ -40,7 +40,7 @@ when isMainModule:
     isAbout = paramStr(1) == "--about"
 
   if isVersion:
-    echo(getVersion())
+    showVersion()
     quit(0)
 
   if isAbout:

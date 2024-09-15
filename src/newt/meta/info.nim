@@ -1,9 +1,11 @@
 import strformat
 
 
-proc getVersion*(): string = return "v1.0.2"
+let version = "v1.0.2"
+
+proc showVersion*() = echo(version)
 proc showAbout*() = echo(
-    &"newt {getVersion()} - Navid M (c) 2024\n\n" &
+    &"newt {version} - Navid M (c) 2024\n\n" &
     "https://github.com/navid-m/newt\n" &
     "https://ko-fi.com/navid_m"
 )
