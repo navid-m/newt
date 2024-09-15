@@ -40,9 +40,11 @@ when isMainModule:
 
   if isVersion:
     echo(getVersion())
+    quit(0)
 
   if isAbout:
     showAbout()
+    quit(0)
 
   if isVideo:
     if paramCount() < 2:
