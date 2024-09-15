@@ -255,7 +255,7 @@ proc downloadInnerStreamById*(url: string, id: int) =
       success = true
       break
   if not success:
-    raise newException(ValueError, "Could not find corresponding tag")
+    raise newException(ValueError, "Invalid itag was passed")
 
 
 proc downloadInnerStream*(url: string, isAudio: bool) =
