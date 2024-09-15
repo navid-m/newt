@@ -44,6 +44,7 @@ proc downloadIvStream*(videoURL: string, outputPath: string = "") =
   ## Download the fucking thing
   let videoID = extractVideoId(videoURL)
   let videoLink = findVideoLink(videoID)
+
   var outputPathToUse = outputPath
 
   if outputPath.len() == 0:
