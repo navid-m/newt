@@ -7,21 +7,53 @@ YouTube downloader library and command-line interface (CLI) built on Nim.
 ```nim
 import newt
 
-# Download audio from a video
-let audioUrl = "https://www.youtube.com/watch?v=example"
-downloadYtAudio(audioUrl)
+# Is false by default
+announceLogs(true)
 
-# Download best quality video
-let videoUrl = "https://www.youtube.com/watch?v=example"
-downloadBestYtVideo(videoUrl)
+# Get the info corresponding to the provided URL
+let vidInf: VideoInfo = newt.getVideoInfo("https://www.youtube.com/watch?v=5ANuXhk9qWM")
 
-# Get available streams for given video
-let info = getMediaInfo(videoUrl)
-info.showAvailableFormats()
+# Get the highest bitrate audio format
+let bestAudioFormat: MediaFormat = newt.getBestFormat(vidInf.formats, FormatType.audio)
 
-# Get video information
-let videoInfo = getMediaInfo(videoUrl)
-videoInfo.showVideoDetails()
+# Download the stream specified in the bestAudioFormat value
+downloadYtStreamByFormat(bestAudioFormat, vidInf.title)
+```
+
+### MediaFormat and VideoInfo types
+
+```nim
+type
+  MediaFormat* = object
+    itag*: int
+    url*: string
+    fps*: int
+    bitrate*: int64
+    mimeType*: string
+    codec*: string
+    contentLength*: int64
+    audioSampleRate*: int64
+    audioChannels*: int
+    projectionType*: string
+    width*: int
+    height*: int
+    quality*: string
+    qualityLabel*: string
+    audioQuality*: string
+
+type
+  VideoInfo* = object
+    videoId*: string
+    title*: string
+    lengthSeconds*: int64
+    views*: int
+    description*: string
+    author*: string
+    liveContent*: bool
+    private*: bool
+    ratingsEnabled*: bool
+    channelId*: string
+    formats*: seq[MediaFormat]
 ```
 
 ---
