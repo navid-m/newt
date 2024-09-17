@@ -31,6 +31,7 @@ type
     bitrate*: int64
     mimeType*: string
     codec*: string
+    extension*: string
     contentLength*: int64
     audioSampleRate*: int64
     audioChannels*: int
@@ -38,7 +39,6 @@ type
     width*: int
     height*: int
     quality*: string
-    extension*: string
     qualityLabel*: string
     audioQuality*: string
 
