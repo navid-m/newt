@@ -56,11 +56,11 @@ when isMainModule:
     echo("Invalid params.")
     quit(1)
 
-  proc doAction(action: proc(), cstring = "Error") =
+  proc doAction(action: proc(), emsg = "Error") =
     try:
       action()
     except:
-      echo(&"{cstring}: ", getCurrentException().msg)
+      echo(&"{emsg}: ", getCurrentException().msg)
       quit(1)
 
   if isVideo:
