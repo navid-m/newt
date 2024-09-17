@@ -20,6 +20,7 @@ type
     width*: int
     height*: int
     quality*: string
+    extension*: string
     qualityLabel*: string
     audioQuality*: string
 
@@ -74,11 +75,17 @@ proc showAvailableFormats*(video: VideoInfo) =
   var table: TerminalTable
 
   table.add(
-    "ID", "Bitrate", "Mime Type", "Codec", "Size", "Audio Sample Rate",
-    "Audio Channels", "Projection", "Quality", "Audio Quality", "FPS"
+    "ID", "Bitrate", "Mime Type", "Codec", "Size",
+    "Audio Sample Rate", "Audio Channels", "Projection", "Dimensions",
+    "Quality", "Audio Quality", "FPS"
   )
 
   for format in video.formats:
+    var dimsToShow = "N/A"
+
+    if format.height > 0:
+      dimsToShow = &"{format.width}x{format.height}"
+
     table.add(
       $format.itag,
       $format.bitrate,
@@ -88,6 +95,7 @@ proc showAvailableFormats*(video: VideoInfo) =
       $format.audioSampleRate,
       $format.audioChannels,
       format.projectionType,
+      dimsToShow,
       format.quality,
       format.audioQuality,
       $format.fps

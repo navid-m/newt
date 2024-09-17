@@ -222,6 +222,7 @@ proc getInnerStreamData*(url: string): VideoInfo =
         itag: format["itag"].getInt,
         url: format["url"].getStr,
         mimeType: mimeType,
+        extension: mapMimeToPlain(mimeType),
         codec: codec.replace(", ", " + "),
         bitrate: format["bitrate"].getInt,
         audioSampleRate: audioSampleRate,
