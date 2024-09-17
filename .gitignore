@@ -9,6 +9,7 @@ htmldocs/
 *.exe
 *.o
 
+*.7z
 *.m4a
 *.mp4
 *.opus
