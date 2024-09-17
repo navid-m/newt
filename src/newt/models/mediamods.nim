@@ -36,6 +36,7 @@ type
     private*: bool
     ratingsEnabled*: bool
     channelId*: string
+    thumbnailUrls*: seq[string]
     formats*: seq[MediaFormat]
 
 
@@ -59,8 +60,13 @@ proc showVideoDetails*(video: VideoInfo) =
     &"\nLive Content: " & ($video.liveContent),
     &"\nPrivate: " & ($video.private),
     &"\nAuthor: {video.author}",
-    &"\nDescription: {descToShow}",
+    &"\nDescription: {descToShow}\n" & repeat("─", 100),
+    &"\nThumbnail URLs:"
   )
+
+  for tn in video.thumbnailUrls:
+    echo(" * " & tn)
+
   styledEcho(styleBright, repeat("─", 100))
 
 

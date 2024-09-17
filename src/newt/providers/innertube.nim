@@ -9,7 +9,7 @@ import
   threadpool
 
 import
-  ../primitives/[randoms, inners, texts],
+  ../primitives/[randoms, inners, texts, links],
   ../diagnostics/[envchk, logger],
   ../models/[downloadmods, mediamods],
   ../flags/vidflags
@@ -151,7 +151,8 @@ proc downloadStream*(
 
 proc getInnerStreamData*(url: string): VideoInfo =
   ## Get the corresponding VideoInfo given the video URL
-  let vidInf = getVideoInfo(url.split("=")[^1], newHttpClient())
+  let vidId = url.split("=")[^1]
+  let vidInf = getVideoInfo(vidId, newHttpClient())
   var vidDetails: JsonNode
 
   try:
@@ -172,7 +173,8 @@ proc getInnerStreamData*(url: string): VideoInfo =
     private: vidDetails["isPrivate"].getBool,
     liveContent: vidDetails["isLiveContent"].getBool,
     ratingsEnabled: vidDetails["allowRatings"].getBool,
-    description: vidDetails["shortDescription"].getStr
+    description: vidDetails["shortDescription"].getStr,
+    thumbnailUrls: getVideoThumbnailUrls(vidId)
   )
 
   proc populateFormatsViaIdentifier(formatLookupIdentifier: string) =
