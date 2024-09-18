@@ -60,8 +60,9 @@ proc showVideoDetails*(video: VideoInfo) =
     &"\nLive Content: " & ($video.liveContent),
     &"\nPrivate: " & ($video.private),
     &"\nAuthor: {video.author}",
-    &"\nDescription: {descToShow}\n" & repeat("─", 100),
-    &"\nThumbnail URLs:"
+    "\n" & repeat("─", 100) & &"\nDescription:\n\n{descToShow}\n" &
+           repeat("─", 100),
+    &"\nThumbnail URLs:\n"
   )
 
   for tn in video.thumbnailUrls:
