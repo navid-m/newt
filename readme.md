@@ -54,6 +54,7 @@ type
     private*: bool
     ratingsEnabled*: bool
     channelId*: string
+    thumbnailUrls*: seq[string]
     formats*: seq[MediaFormat]
 ```
 
