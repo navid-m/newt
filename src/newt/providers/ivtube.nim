@@ -24,15 +24,13 @@ proc extractVideoId(url: string): string =
 
 proc findVideoLink(videoID: string): string =
   ## Scrape IV and find the video download link
-  let parser = parseHtml(
+  for attrNode in parseHtml(
     PrimaryClient.getContent(
       fmt"https://yewtu.be/watch?v={videoID}"
     )
-  )
-
-  for a in parser.findAll("source"):
-    if a.attrs.hasKey("src"):
-      let src = a.attrs["src"]
+  ).findAll("source"):
+    if attrNode.attrs.hasKey("src"):
+      let src = attrNode.attrs["src"]
       if src.contains("local=true"):
         return &"https://invidious.adminforge.de{src}"
 
