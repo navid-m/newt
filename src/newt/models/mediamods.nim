@@ -82,7 +82,7 @@ proc showAvailableFormats*(video: VideoInfo) =
 
   table.add(
     "ID", "Bitrate", "Mime Type", "Codec", "Size",
-    "Audio Sample Rate", "Audio Channels", "Projection", "Dimensions",
+    "Audio Sample Rate", "Audio Channels", "Dimensions",
     "Quality", "Audio Quality", "FPS"
   )
 
@@ -100,7 +100,6 @@ proc showAvailableFormats*(video: VideoInfo) =
       $format.contentLength,
       $format.audioSampleRate,
       $format.audioChannels,
-      format.projectionType,
       dimsToShow,
       format.quality,
       format.audioQuality,
