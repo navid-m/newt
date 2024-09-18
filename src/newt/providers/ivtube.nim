@@ -34,8 +34,7 @@ proc findVideoLink(videoID: string): string =
     if a.attrs.hasKey("src"):
       let src = a.attrs["src"]
       if src.contains("local=true"):
-        let toret = fmt"https://invidious.adminforge.de{src}"
-        return toret
+        return &"https://invidious.adminforge.de{src}"
 
   return ""
 
