@@ -256,9 +256,7 @@ proc downloadInnerStreamById*(url: string, id: int) =
       downloadStream(
         format.url,
         vidInf.title & "." &
-        mapMimeToPlain(
-          format.mimeType
-        )
+        format.extension
       )
       success = true
       break
