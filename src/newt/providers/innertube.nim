@@ -266,8 +266,7 @@ proc downloadInnerStreamById*(url: string, id: int) =
 
 proc downloadInnerStream*(url: string, isAudio: bool) =
   ## Main download procedure
-  let videoId = url.split("=")[^1]
-  let videoInfo = getVideoInfo(videoId, newHttpClient())
+  let videoInfo = getVideoInfo(url.split("=")[^1], newHttpClient())
   let dlName = videoInfo["videoDetails"]["title"].str &
     " [" & videoInfo["videoDetails"]["videoId"].str & "]"
 
