@@ -25,7 +25,7 @@ proc downloadYtStreamByFormat*(
   fnameWithoutExtension: string) =
   innertube.downloadStream(
     form.url,
-    fnameWithoutExtension & "." & mapMimeToPlain(form.mimeType)
+    fnameWithoutExtension & "." & form.extension
   )
 
 proc downloadBestYtVideo*(url: string) =
