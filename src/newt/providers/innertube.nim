@@ -4,6 +4,7 @@ import
   strformat,
   strutils,
   streams,
+  times,
   os,
   osproc,
   threadpool
@@ -197,6 +198,7 @@ proc getInnerStreamData*(url: string): VideoInfo =
       var qualityLabel = "N/A"
       var projectionType = "N/A"
       var currentAdaptiveClength = 0
+      var lastModifiedAsTime: Time
 
       try:
         width = format["width"].getInt
@@ -210,6 +212,13 @@ proc getInnerStreamData*(url: string): VideoInfo =
 
       try:
         currentAdaptiveClength = format["contentLength"].getStr.parseInt
+      except:
+        discard
+
+      try:
+        let rawLastMod = format["lastModified"].getStr.parseInt
+        let lastModifiedSeconds = rawLastMod / 1_000_000
+        lastModifiedAsTime = fromUnix(int64(lastModifiedSeconds))
       except:
         discard
 
@@ -237,6 +246,8 @@ proc getInnerStreamData*(url: string): VideoInfo =
         qualityLabel: qualityLabel,
         contentLength: currentAdaptiveClength,
         projectionType: projectionType,
+        averageBitrate: format["averageBitrate"].getInt,
+        lastModified: lastModifiedAsTime
       ))
 
   populateFormatsViaIdentifier("adaptiveFormats")
