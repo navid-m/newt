@@ -216,8 +216,9 @@ proc getInnerStreamData*(url: string): VideoInfo =
         discard
 
       try:
-        let lastModifiedSeconds = format["lastModified"].getStr.parseInt / 1_000_000
-        lastModifiedAsTime = fromUnix(int64(lastModifiedSeconds))
+        lastModifiedAsTime = fromUnix(
+          int64(format["lastModified"].getStr.parseInt / 1_000_000)
+        )
       except:
         discard
 
