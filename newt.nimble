@@ -1,6 +1,6 @@
 # Package
 
-version       = "1.0.2"
+version       = "1.0.4"
 author        = "Navid M"
 description   = "Youtube downloader library and CLI"
 license       = "GPLv3"
