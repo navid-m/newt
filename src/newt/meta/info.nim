@@ -1,7 +1,7 @@
 import strformat
 
 
-let version = "v1.0.4"
+let version = "v1.0.5"
 
 
 proc showVersion*() = echo(version)
