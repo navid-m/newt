@@ -21,6 +21,7 @@ export
   getVideoInfo,
   getBestFormat,
   announceLogs,
+  getAllLogs,
   MediaFormat,
   VideoInfo,
   FormatType
