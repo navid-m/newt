@@ -29,6 +29,7 @@ type
     url*: string
     fps*: int
     bitrate*: int64
+    averageBitrate*: int64
     mimeType*: string
     codec*: string
     extension*: string
@@ -41,6 +42,7 @@ type
     quality*: string
     qualityLabel*: string
     audioQuality*: string
+    lastModified*: Time
 
 type
   VideoInfo* = object
