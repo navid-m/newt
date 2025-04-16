@@ -7,9 +7,7 @@ import
 
 const CONTENT_PLAYBACK_NONCE_ABCS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 
-
 randomize()
-
 
 proc writeVarint(buf: var seq[byte], x: uint64) =
     var v = x
