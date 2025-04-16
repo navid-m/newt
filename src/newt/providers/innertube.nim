@@ -10,7 +10,7 @@ import
     threadpool
 
 import
-    ../primitives/[randoms, inners, texts, links],
+    ../primitives/[randoms, inners, texts, links, visitors],
     ../diagnostics/[envchk, logger],
     ../models/[downloadmods, mediamods],
     ../flags/vidflags
@@ -18,38 +18,57 @@ import
 
 proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
     ## Get video info using InnerTube API
-    let userAgentToUse = randomUserAgent()
-
     client.headers = newHttpHeaders(titleCase = true)
-
-    client.headers.add("User-Agent", userAgentToUse)
+    client.headers.add("User-Agent", "com.google.android.youtube/18.11.34 (Linux; U; Android 11) gzip")
     client.headers.add("Content-Type", "application/json")
     client.headers.add("Accept", "application/json")
-    client.headers.add("Sec-Fetch-Mode", "navigate")
-    client.headers.add("Origin", "https://www.youtube.com")
-    client.headers.add("Referer", "https://www.youtube.com")
+    client.headers.add("X-Youtube-Client-Name", "3")
+    client.headers.add("X-Youtube-Client-Version", "18.11.34")
     client.headers.add(
       "Cookie",
       "CONSENT=YES+cb.20210328-17-p0.en+FX+" & randomConsentID()
     )
 
-    var response: string
+    var alterResponse: Response
 
     try:
         let url = fmt"{INNERTUBE_API_URL}?key={INNERTUBE_API_KEY}"
+        let payload = %* {
+          "videoId": videoId,
+            "context": {
+                "client": {
+                    "hl": "en",
+                    "gl": "US",
+                    "clientName": "ANDROID_EMBED",
+                    "clientVersion": "18.11.34",
+                    "androidSDKVersion": 30,
+                    "userAgent": "com.google.android.youtube/18.11.34 (Linux; U; Android 11) gzip",
+                    "timeZone": "UTC",
+                    "utcOffsetMinutes": 0,
+                    "visitorData": randomVisitorData("US")
+            }
+        },
+            "contentCheckOk": true,
+            "racyCheckOk": true,
+            "params": "CgIQBg==",
+            "playbackContext": {
+                "contentPlaybackContext": {
+                    "html5Preference": "HTML5_PREF_WANTS"
+            }
+        }
+        }
+
         echo "| \x1b[31murl: ", url, "\x1b[0m |"
+        echo "| \x1b[31mpayload: ", $payload, "\x1b[0m |"
 
-
-        let payload = buildInnertubePayload(videoId)
-        echo "| \x1b[31mpayload: ", payload, "\x1b[0m |"
-
-        response = client.postContent(url, $payload)
+        alterResponse = client.post(url, $payload)
+        echo "| \x1b[31malterResponse: ", alterResponse.body(), "\x1b[0m |"
 
     except HttpRequestError as e:
         logError("Error fetching video info: " & e.msg)
         return nil
 
-    return parseJson(response)
+    return parseJson(alterResponse.body())
 
 
 proc getAudio(videoInfo: JsonNode): JsonNode =

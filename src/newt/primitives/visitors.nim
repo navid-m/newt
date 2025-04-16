@@ -41,7 +41,7 @@ proc writeBytesField(buf: var seq[byte], field: int, data: seq[byte]) =
 proc randString(alphabet: string, n: int): string =
     result = newStringOfCap(n)
     for _ in 0..<n:
-        result.add(alphabet[rand(alphabet.len)])
+        result.add(alphabet[rand(alphabet.len - 1)])
 
 
 proc urlBase64*(data: seq[byte]): string =
