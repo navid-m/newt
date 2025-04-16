@@ -19,11 +19,13 @@ import
 proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
     ## Get video info using InnerTube API
     client.headers = newHttpHeaders(titleCase = true)
-    client.headers.add("User-Agent", "com.google.android.youtube/18.11.34 (Linux; U; Android 11) gzip")
+    client.headers.add("User-Agent", "com.google.ios.youtube/19.45.4 (iPhone16,2; U; CPU iOS 18_1_0 like Mac OS X;)")
     client.headers.add("Content-Type", "application/json")
     client.headers.add("Accept", "application/json")
     client.headers.add("X-Youtube-Client-Name", "3")
-    client.headers.add("X-Youtube-Client-Version", "18.11.34")
+    client.headers.add("X-Youtube-Client-Version", "19.45.4")
+    client.headers.add("Origin", "https://youtube.com")
+    client.headers.add("Referer", "https://youtube.com")
     client.headers.add(
       "Cookie",
       "CONSENT=YES+cb.20210328-17-p0.en+FX+" & randomConsentID()
@@ -32,26 +34,25 @@ proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
     var alterResponse: Response
 
     try:
-        let url = fmt"{INNERTUBE_API_URL}?key={INNERTUBE_API_KEY}"
+        let url = "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
         let payload = %* {
-            "videoId": videoId,
-            "context": {
-                "client": {
-                "hl": "en",
-                "gl": "US",
-                "clientName": "ANDROID_EMBEDDED_PLAYER",
-                "clientVersion": "17.31.35",
-                "clientScreen": "EMBED",
-                "androidSDKVersion": 30,
-                "timeZone": "UTC",
-                "utcOffsetMinutes": 0,
-                "visitorData": randomVisitorData("US")
-            },
-            "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
+          "videoId": videoId,
+          "context": {
+            "client": {
+              "hl": "en",
+              "gl": "US",
+              "clientName": "IOS",
+              "clientVersion": "19.45.4",
+              "deviceModel": "iPhone16,2",
+              "userAgent": "com.google.ios.youtube/19.45.4 (iPhone16,2; U; CPU iOS 18_1_0 like Mac OS X;)",
+              "timeZone": "UTC",
+              "utcOffsetMinutes": 0,
+              "visitorData": randomVisitorData("US")
+            }
         },
-        "contentCheckOk": true,
-        "racyCheckOk": true,
-        "params": "CgIQBg==",
+          "contentCheckOk": true,
+          "racyCheckOk": true,
+          "params": "CgIQBg=="
         }
 
         echo "| \x1b[31murl: ", url, "\x1b[0m |"
