@@ -1,4 +1,6 @@
-import json
+import
+    json,
+    ../primitives/visitors
 
 
 # Constants for InnerTube API
@@ -11,21 +13,26 @@ const ANDROID_USER_AGENT* = "com.google.android.youtube/18.11.34 (Linux; U; Andr
 
 # Build InnerTube API request payload
 proc buildInnertubePayload*(videoId: string): JsonNode =
-  return %*{
-    "context": {
-      "client": {
-        "clientName": INNERTUBE_CLIENT_NAME,
-        "clientVersion": INNERTUBE_CLIENT_VERSION,
-        "androidSDKVersion": 30,
-        "userAgent": ANDROID_USER_AGENT,
-        "timeZone": "UTC",
-        "utcOffsetMinutes": 0,
-        "gl": "US",
-        "hl": "en"
+    return %*{
+      "context": {
+        "client": {
+          "hl": "en",
+          "gl": "US",
+          "clientName": INNERTUBE_CLIENT_NAME,
+          "clientVersion": INNERTUBE_CLIENT_VERSION,
+          "androidSDKVersion": 30,
+          "userAgent": ANDROID_USER_AGENT,
+          "timeZone": "UTC",
+          "utcOffsetMinutes": 0,
+          "visitorData": randomVisitorData("US")
+        }
+    },
+      "videoId": videoId,
+      "playbackContext": {
+        "contentPlaybackContext": {
+          "html5Preference": "HTML5_PREF_WANTS"
+        }
+    },
+      "contentCheckOk": true,
+      "racyCheckOk": true
     }
-  },
-    "videoId": videoId,
-    "contentCheckOk": true,
-    "racyCheckOk": true,
-    "params": "CgIQBg=="
-  }
