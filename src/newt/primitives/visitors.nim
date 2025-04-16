@@ -4,9 +4,12 @@ import
     base64,
     strutils
 
+
 const CONTENT_PLAYBACK_NONCE_ABCS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 
+
 randomize()
+
 
 proc writeVarint(buf: var seq[byte], x: uint64) =
     var v = x
@@ -19,8 +22,10 @@ proc writeVarint(buf: var seq[byte], x: uint64) =
             buf.add(b)
             break
 
+
 proc writeKey(buf: var seq[byte], field: int, wireType: int) =
     writeVarint(buf, uint64((field shl 3) or wireType))
+
 
 proc writeStringField(buf: var seq[byte], field: int, s: string) =
     writeKey(buf, field, 2)
@@ -28,15 +33,18 @@ proc writeStringField(buf: var seq[byte], field: int, s: string) =
     writeVarint(buf, uint64(bytes.len))
     buf.add(bytes)
 
+
 proc writeBytesField(buf: var seq[byte], field: int, data: seq[byte]) =
     writeKey(buf, field, 2)
     writeVarint(buf, uint64(data.len))
     buf.add(data)
 
+
 proc randString(alphabet: string, n: int): string =
     result = newStringOfCap(n)
     for _ in 0..<n:
         result.add(alphabet[rand(alphabet.len)])
+
 
 proc urlBase64*(data: seq[byte]): string =
     var b64 = encode(data) # standard Base64
@@ -44,6 +52,7 @@ proc urlBase64*(data: seq[byte]): string =
     while b64.endsWith("="):
         b64.setLen(b64.len - 1)
     result = b64
+
 
 proc randomVisitorData*(countryCode: string): string =
     var e2 = newSeq[byte]()
