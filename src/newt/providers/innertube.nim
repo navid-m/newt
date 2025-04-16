@@ -34,28 +34,24 @@ proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
     try:
         let url = fmt"{INNERTUBE_API_URL}?key={INNERTUBE_API_KEY}"
         let payload = %* {
-          "videoId": videoId,
+            "videoId": videoId,
             "context": {
                 "client": {
-                    "hl": "en",
-                    "gl": "US",
-                    "clientName": "ANDROID_EMBED",
-                    "clientVersion": "18.11.34",
-                    "androidSDKVersion": 30,
-                    "userAgent": "com.google.android.youtube/18.11.34 (Linux; U; Android 11) gzip",
-                    "timeZone": "UTC",
-                    "utcOffsetMinutes": 0,
-                    "visitorData": randomVisitorData("US")
-            }
+                "hl": "en",
+                "gl": "US",
+                "clientName": "ANDROID_EMBEDDED_PLAYER",
+                "clientVersion": "17.31.35",
+                "clientScreen": "EMBED",
+                "androidSDKVersion": 30,
+                "timeZone": "UTC",
+                "utcOffsetMinutes": 0,
+                "visitorData": randomVisitorData("US")
+            },
+            "apiKey": "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
         },
-            "contentCheckOk": true,
-            "racyCheckOk": true,
-            "params": "CgIQBg==",
-            "playbackContext": {
-                "contentPlaybackContext": {
-                    "html5Preference": "HTML5_PREF_WANTS"
-            }
-        }
+        "contentCheckOk": true,
+        "racyCheckOk": true,
+        "params": "CgIQBg==",
         }
 
         echo "| \x1b[31murl: ", url, "\x1b[0m |"
