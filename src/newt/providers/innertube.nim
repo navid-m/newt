@@ -27,9 +27,7 @@ proc extractUrlFromSignatureCipher(cipher: string): string =
     raise newException(ValueError, "No 'url' parameter found in signatureCipher")
 
 
-
-proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
-    ## Get video info using InnerTube API
+proc addHeaders(client: HttpClient) =
     client.headers = newHttpHeaders(titleCase = true)
     client.headers.add("User-Agent", "com.google.ios.youtube/19.45.4 (iPhone16,2; U; CPU iOS 18_1_0 like Mac OS X;)")
     client.headers.add("Content-Type", "application/json")
@@ -43,6 +41,10 @@ proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
       "CONSENT=YES+cb.20210328-17-p0.en+FX+" & randomConsentID()
     )
 
+proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
+    ## Get video info using InnerTube API
+
+    addHeaders(client)
     var alterResponse: Response
 
     try:
@@ -135,22 +137,19 @@ proc downloadStream*(
 
         let client = newHttpClient()
         const chunkSize = 1024 * 1024 * 5
+        addHeaders(client)
+        echo client.headers
 
-        client.headers = newHttpHeaders({
-          "Accept-Language": "en-US,en;q=0.9",
-          "Sec-Fetch-Dest": "empty",
-          "Sec-Fetch-Mode": "cors",
-          "Sec-Fetch-Site": "cross-site",
-          "Referer": "https://youtube.com",
-          "Cookie": "CONSENT=YES+cb.20210328-17-p0.en+FX+" & randomConsentID()
-        })
-
-        client.headers.add("Range", "bytes=0-0")
-
+        client.headers.add("Range", "bytes=0-1")
         let headResponse = client.head(downloadUrl)
+
+        if not ("Content-Range" in $headResponse.headers):
+            raise newException(IOError, "No Content-Range returned — server may not support partial downloads")
+
         let contentLength = parseInt(
-          headResponse.headers["Content-Range"].split("/")[1]
+            headResponse.headers["Content-Range"].split("/")[1]
         )
+
         let numChunks = (contentLength div chunkSize) + 1
         var chunks: seq[FlowVar[DownloadChunk]]
 
