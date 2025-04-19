@@ -10,7 +10,7 @@ import
     threadpool
 
 import
-    ../primitives/[randoms, inners, texts, links, visitors],
+    ../primitives/[randoms, texts, links, visitors],
     ../diagnostics/[envchk, logger],
     ../models/[downloadmods, mediamods],
     ../flags/vidflags
