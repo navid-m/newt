@@ -36,24 +36,23 @@ proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
     try:
         let url = "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
         let payload = %* {
-          "videoId": videoId,
-          "context": {
+            "videoId": videoId,
+            "context": {
             "client": {
-              "hl": "en",
-              "gl": "US",
-              "clientName": "IOS",
-              "clientVersion": "19.45.4",
-              "deviceModel": "iPhone16,2",
-              "userAgent": "com.google.ios.youtube/19.45.4 (iPhone16,2; U; CPU iOS 18_1_0 like Mac OS X;)",
-              "timeZone": "UTC",
-              "utcOffsetMinutes": 0,
-              "visitorData": randomVisitorData("US")
+            "hl": "en",
+            "gl": "US",
+            "clientName": "WEB",
+            "clientVersion": "2.20240418.01.00",
+            "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)...",
+            "timeZone": "UTC",
+            "utcOffsetMinutes": 0,
+            "visitorData": randomVisitorData("US")
             }
         },
-          "contentCheckOk": true,
-          "racyCheckOk": true,
-          "params": "CgIQBg=="
+        "contentCheckOk": true,
+        "racyCheckOk": true
         }
+
 
         echo "| \x1b[31murl: ", url, "\x1b[0m |"
         echo "| \x1b[31mpayload: ", $payload, "\x1b[0m |"
