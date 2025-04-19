@@ -7,13 +7,25 @@ import
     times,
     os,
     osproc,
-    threadpool
+    threadpool,
+    uri
 
 import
     ../primitives/[randoms, texts, links, visitors],
     ../diagnostics/[envchk, logger],
     ../models/[downloadmods, mediamods],
     ../flags/vidflags
+
+proc extractUrlFromSignatureCipher(cipher: string): string =
+
+    ## Extracts the `url` parameter from a signatureCipher string.
+    var parts = cipher.split('&')
+    for part in parts:
+        if part.startsWith("url="):
+            let encodedUrl = part[4..^1] # skip 'url='
+            return decodeUrl(encodedUrl)
+    raise newException(ValueError, "No 'url' parameter found in signatureCipher")
+
 
 
 proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
@@ -201,6 +213,9 @@ proc getInnerStreamData*(url: string): VideoInfo =
       thumbnailUrls: getVideoThumbnailUrls(vidId)
     )
 
+
+
+
     proc populateFormatsViaIdentifier(formatLookupIdentifier: string) =
         for format in vidInf["streamingData"][formatLookupIdentifier].items:
             var audioSampleRate = 0
@@ -251,10 +266,17 @@ proc getInnerStreamData*(url: string): VideoInfo =
                 currentAdaptiveClength = lastKnownAdaptiveClength
 
             var (mimeType, codec) = parseMimeType(format["mimeType"].getStr)
+            var averageBitrate: int = 0
+
+            try:
+                averageBitrate = format["averageBitrate"].getInt
+            except:
+                discard
 
             mediaSeq.add(MediaFormat(
               itag: format["itag"].getInt,
-              url: format["url"].getStr,
+              url: extractUrlFromSignatureCipher(format[
+                "signatureCipher"].getStr()),
               mimeType: mimeType,
               extension: mapMimeToPlain(mimeType),
               codec: codec.replace(", ", " + "),
@@ -269,7 +291,7 @@ proc getInnerStreamData*(url: string): VideoInfo =
               qualityLabel: qualityLabel,
               contentLength: currentAdaptiveClength,
               projectionType: projectionType,
-              averageBitrate: format["averageBitrate"].getInt,
+              averageBitrate: averageBitrate,
               lastModified: lastModifiedAsTime
             ))
 
@@ -313,7 +335,8 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
 
     if isAudio:
         let audioInfo = getAudio(videoInfo)
-        downloadUrl = audioInfo["url"].getStr()
+        downloadUrl = extractUrlFromSignatureCipher(audioInfo[
+                "signatureCipher"].getStr())
         downloadStream(downloadUrl, fmt"{dlName}.weba")
     else:
         var filter = "formats"
@@ -322,10 +345,12 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
             filter = "adaptiveFormats"
 
         let fullVideoInfo = getVideo(videoInfo, filter)
-        let audioDownloadUrl = fullVideoInfo[1]["url"].getStr()
+        let audioDownloadUrl = extractUrlFromSignatureCipher(fullVideoInfo[1][
+                "signatureCipher"].getStr())
         let videoName = fmt"{dlName}.mp4"
 
-        downloadUrl = fullVideoInfo[0]["url"].getStr()
+        downloadUrl = extractUrlFromSignatureCipher(fullVideoInfo[0][
+                "signatureCipher"].getStr())
 
         if getHighQualMergeStatus():
             let tempVideoName = "temp_video.webm"
