@@ -66,11 +66,10 @@ proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
         }
 
 
-        echo "| \x1b[31murl: ", url, "\x1b[0m |"
-        echo "| \x1b[31mpayload: ", $payload, "\x1b[0m |"
-
+        # echo "| \x1b[31murl: ", url, "\x1b[0m |"
+        # echo "| \x1b[31mpayload: ", $payload, "\x1b[0m |"
         alterResponse = client.post(url, $payload)
-        echo "| \x1b[31malterResponse: ", alterResponse.body(), "\x1b[0m |"
+        # echo "| \x1b[31malterResponse: ", alterResponse.body(), "\x1b[0m |"
 
     except HttpRequestError as e:
         logError("Error fetching video info: " & e.msg)
