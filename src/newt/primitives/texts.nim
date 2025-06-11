@@ -24,3 +24,10 @@ proc mapMimeToPlain*(mime: string): string =
     if "audio/webm" in mime:
         return "opus"
     return "webm"
+
+
+proc removeNonAlphanumericModified*(s: string): string =
+    ## Remove invalid filename characters
+    for c in s:
+        if c.isAlphaNumeric or c == ' ' or c == '-':
+            result.add(c)

@@ -282,7 +282,7 @@ proc downloadInnerStreamById*(url: string, id: int) =
         if format.itag == id:
             downloadStream(
               format.url,
-              vidInf.title & "." &
+              removeNonAlphanumericModified(vidInf.title) & "." &
               format.extension
             )
             success = true
