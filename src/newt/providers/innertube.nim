@@ -132,7 +132,8 @@ proc downloadStream*(
   postBody: JsonNode = nil
 ) =
     echo downloadUrl
-
+    echo "yo"
+    echo "dl url is: ", downloadUrl
     ## Download the stream (chunked if supported, else fallback to GET/POST)
     try:
         logInfo("Downloading: " & downloadUrl & " to " & outputPath)
@@ -161,6 +162,19 @@ proc downloadStream*(
         logError("IO error while saving stream: " & e.msg)
 
 
+proc parseSignatureCipher(signatureCipher: string): string =
+    ## Extract the URL from signatureCipher parameter
+    let decodedCipher = decodeUrl(signatureCipher)
+    let params = decodedCipher.split("&")
+
+    for param in params:
+        let keyValue = param.split("=", 1)
+        if keyValue.len == 2 and keyValue[0] == "url":
+            return decodeUrl(keyValue[1])
+
+    return ""
+
+
 proc getInnerStreamData*(url: string): VideoInfo =
     ## Get the corresponding VideoInfo given the video URL
     let vidId = url.split("=")[^1]
@@ -174,7 +188,6 @@ proc getInnerStreamData*(url: string): VideoInfo =
 
     var mediaSeq: seq[MediaFormat] = @[]
     var lastKnownAdaptiveClength = 0
-
     var video = VideoInfo(
       videoId: vidDetails["videoId"].getStr,
       title: vidDetails["title"].getStr,
@@ -191,6 +204,7 @@ proc getInnerStreamData*(url: string): VideoInfo =
 
     proc populateFormatsViaIdentifier(formatLookupIdentifier: string) =
         for format in vidInf["streamingData"][formatLookupIdentifier].items:
+            echo format
             var audioSampleRate = 0
             var audioChannels = 0
             var audioQuality = "N/A"
@@ -246,6 +260,16 @@ proc getInnerStreamData*(url: string): VideoInfo =
             except:
                 discard
 
+            var videoUrl = ""
+            try:
+                videoUrl = format["url"].getStr
+            except:
+                try:
+                    let signatureCipher = format["signatureCipher"].getStr
+                    videoUrl = parseSignatureCipher(signatureCipher)
+                except:
+                    echo "Warning: Could not extract URL from format"
+
             mediaSeq.add(MediaFormat(
               itag: format["itag"].getInt,
               mimeType: mimeType,
@@ -263,7 +287,8 @@ proc getInnerStreamData*(url: string): VideoInfo =
               contentLength: currentAdaptiveClength,
               projectionType: projectionType,
               averageBitrate: averageBitrate,
-              lastModified: lastModifiedAsTime
+              lastModified: lastModifiedAsTime,
+              url: videoUrl
             ))
 
     populateFormatsViaIdentifier("adaptiveFormats")
