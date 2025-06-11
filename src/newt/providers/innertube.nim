@@ -16,7 +16,6 @@ import
     ../flags/vidflags
 
 proc extractUrlFromSignatureCipher(cipher: string): string =
-
     ## Extracts the `url` parameter from a signatureCipher string.
     var parts = cipher.split('&')
     for part in parts:
