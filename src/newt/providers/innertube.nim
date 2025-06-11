@@ -346,5 +346,4 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
             removeFile(tempVideoName)
             removeFile(tempAudioName)
         else:
-
             downloadStream(downloadUrl, videoName)
