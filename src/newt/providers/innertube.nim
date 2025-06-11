@@ -15,6 +15,7 @@ import
     ../models/[mediamods],
     ../flags/vidflags
 
+
 proc extractUrlFromSignatureCipher(cipher: string): string =
     ## Extracts the `url` parameter from a signatureCipher string.
     var parts = cipher.split('&')
@@ -38,6 +39,7 @@ proc addHeaders(client: HttpClient) =
       "Cookie",
       "CONSENT=YES+cb.20210328-17-p0.en+FX+" & randomConsentID()
     )
+
 
 proc getVideoInfo(videoId: string, client: HttpClient): JsonNode =
     ## Get video info using InnerTube API
@@ -122,6 +124,7 @@ proc postWithApiKey*(url: string, apiKey: string, body: JsonNode): string =
 
     return client.postContent(fullUrl, $body)
 
+
 proc downloadStream*(
   downloadUrl: string,
   outputPath: string,
@@ -156,6 +159,7 @@ proc downloadStream*(
         logError("Error downloading stream: " & e.msg)
     except IOError as e:
         logError("IO error while saving stream: " & e.msg)
+
 
 proc getInnerStreamData*(url: string): VideoInfo =
     ## Get the corresponding VideoInfo given the video URL
