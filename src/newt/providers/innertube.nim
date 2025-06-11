@@ -148,6 +148,7 @@ proc downloadStream*(
         echo apiKey
         if apiKey.len > 0 and postBody != nil:
             logInfo("Using POST request with API key")
+            echo postBody
             body = postWithApiKey(downloadUrl, apiKey, postBody)
         else:
             logInfo("Using fallback GET request")
@@ -304,12 +305,14 @@ proc downloadInnerStreamById*(url: string, id: int) =
     for format in vidInf.formats:
         if format.itag == id:
             echo "307"
+            echo format.url
+            echo inners.extractYoutubeId(url)
             downloadStream(
               format.url,
               removeNonAlphanumericModified(vidInf.title) & "." &
               format.extension,
               inners.INNERTUBE_API_KEY,
-              inners.buildInnertubePayload(inners.extractYoutubeId(format.url))
+              inners.buildInnertubePayload(inners.extractYoutubeId(url))
             )
             success = true
             break
