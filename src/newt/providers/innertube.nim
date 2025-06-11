@@ -249,8 +249,6 @@ proc getInnerStreamData*(url: string): VideoInfo =
 
             mediaSeq.add(MediaFormat(
               itag: format["itag"].getInt,
-              url: extractUrlFromSignatureCipher(format[
-                "signatureCipher"].getStr()),
               mimeType: mimeType,
               extension: mapMimeToPlain(mimeType),
               codec: codec.replace(", ", " + "),
