@@ -1,7 +1,7 @@
 import terminal
 
 
-var loudLogger = false;
+var loudLogger = true;
 var suppressErrors = false;
 var logs: seq[string]
 var errors: seq[string]

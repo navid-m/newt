@@ -10,7 +10,7 @@ import
     uri
 
 import
-    ../primitives/[randoms, texts, links, visitors],
+    ../primitives/[randoms, texts, links, visitors, inners],
     ../diagnostics/[envchk, logger],
     ../models/[mediamods],
     ../flags/vidflags
@@ -144,6 +144,8 @@ proc downloadStream*(
         defer: outputStream.close()
 
         var body: string
+
+        echo apiKey
         if apiKey.len > 0 and postBody != nil:
             logInfo("Using POST request with API key")
             body = postWithApiKey(downloadUrl, apiKey, postBody)
@@ -295,17 +297,19 @@ proc getInnerStreamData*(url: string): VideoInfo =
 
     return video
 
-
 proc downloadInnerStreamById*(url: string, id: int) =
     ## Download stream given the itag of the media, and the URL of the source
     let vidInf = getInnerStreamData(url)
     var success = false
     for format in vidInf.formats:
         if format.itag == id:
+            echo "307"
             downloadStream(
               format.url,
               removeNonAlphanumericModified(vidInf.title) & "." &
-              format.extension
+              format.extension,
+              inners.INNERTUBE_API_KEY,
+              inners.buildInnertubePayload(inners.extractYoutubeId(format.url))
             )
             success = true
             break
@@ -330,6 +334,7 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
         let audioInfo = getAudio(videoInfo)
         downloadUrl = extractUrlFromSignatureCipher(audioInfo[
                 "signatureCipher"].getStr())
+        echo "336"
         downloadStream(downloadUrl, fmt"{dlName}.weba")
     else:
         var filter = "formats"
@@ -349,6 +354,7 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
             let tempVideoName = "temp_video.webm"
             let tempAudioName = "temp_audio.weba"
 
+            echo "354"
             downloadStream(downloadUrl, tempVideoName)
             downloadStream(audioDownloadUrl, tempAudioName)
 
@@ -368,4 +374,5 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
             removeFile(tempVideoName)
             removeFile(tempAudioName)
         else:
+            echo "373"
             downloadStream(downloadUrl, videoName)
