@@ -7,13 +7,12 @@ import
     times,
     os,
     osproc,
-    threadpool,
     uri
 
 import
     ../primitives/[randoms, texts, links, visitors],
     ../diagnostics/[envchk, logger],
-    ../models/[downloadmods, mediamods],
+    ../models/[mediamods],
     ../flags/vidflags
 
 proc extractUrlFromSignatureCipher(cipher: string): string =
@@ -186,9 +185,6 @@ proc getInnerStreamData*(url: string): VideoInfo =
       description: vidDetails["shortDescription"].getStr,
       thumbnailUrls: getVideoThumbnailUrls(vidId)
     )
-
-
-
 
     proc populateFormatsViaIdentifier(formatLookupIdentifier: string) =
         for format in vidInf["streamingData"][formatLookupIdentifier].items:
