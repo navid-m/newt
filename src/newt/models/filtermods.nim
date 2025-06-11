@@ -1,5 +1,5 @@
 type
-  FormatType* = enum
-    video,
-    audio,
-    videoAndAudio
+    FormatType* = enum
+        video,
+        audio,
+        videoAndAudio

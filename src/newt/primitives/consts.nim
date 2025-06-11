@@ -3,7 +3,7 @@ import json
 
 let Agent* = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 let DownloaderAgent* = "com.google.android.youtube/18.11.34 (Linux; U; Android 11) gzip"
-let APIKey* = "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w"
+let APIKey* = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
 
 let ClientContext* = %*{
   "client": {
@@ -14,7 +14,7 @@ let ClientContext* = %*{
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
     "timeZone": "UTC",
     "utcOffset": 0
-  }
+    }
 }
 
 let DownloaderClientContext* = %*{
@@ -27,5 +27,5 @@ let DownloaderClientContext* = %*{
     "userAgent": DownloaderAgent,
     "timeZone": "UTC",
     "utcOffset": 0
-  }
+    }
 }

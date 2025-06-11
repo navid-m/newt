@@ -1,5 +1,5 @@
 type
-  DownloadChunk* = object
-    start*: int
-    ender*: int
-    data*: string
+    DownloadChunk* = object
+        start*: int
+        ender*: int
+        data*: string

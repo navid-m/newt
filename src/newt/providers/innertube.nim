@@ -112,76 +112,52 @@ proc getVideo(videoInfo: JsonNode, filter = "adaptiveFormats"): (JsonNode, JsonN
     return (bestStream, getAudio(videoInfo))
 
 
-proc downloadChunk(url: string, start, ender: int): DownloadChunk =
-    ## Download a chunk
+import ../primitives/consts
+
+proc postWithApiKey*(url: string, apiKey: string, body: JsonNode): string =
     let client = newHttpClient()
     client.headers = newHttpHeaders({
-      "Accept-Language": "en-US,en;q=0.9",
-      "Sec-Fetch-Dest": "empty",
-      "Sec-Fetch-Mode": "cors",
-      "Sec-Fetch-Site": "cross-site",
-      "Referer": "https://youtube.com",
-      "Range": fmt"bytes={start}-{ender}",
-      "Cookie": "CONSENT=YES+cb.20210328-17-p0.en+FX+" & randomConsentID()
+      "Content-Type": "application/json",
+      "User-Agent": "com.google.android.youtube/18.14.35 (Linux; U; Android 12)"
     })
-    result = DownloadChunk(start: start, ender: ender, data: client.get(url).body)
+    let fullUrl = url & "?key=" & APIKey
 
+    return client.postContent(fullUrl, $body)
 
 proc downloadStream*(
-    downloadUrl: string,
-    outputPath: string
+  downloadUrl: string,
+  outputPath: string,
+  apiKey: string = "",
+  postBody: JsonNode = nil
 ) =
-    ## Download the whole stream
+    echo downloadUrl
+
+    ## Download the stream (chunked if supported, else fallback to GET/POST)
     try:
         logInfo("Downloading: " & downloadUrl & " to " & outputPath)
-
         let client = newHttpClient()
-        const chunkSize = 1024 * 1024 * 5
         addHeaders(client)
-        echo client.headers
-
-        client.headers.add("Range", "bytes=0-1")
-        let headResponse = client.head(downloadUrl)
-
-        if not ("Content-Range" in $headResponse.headers):
-            raise newException(IOError, "No Content-Range returned — server may not support partial downloads")
-
-        let contentLength = parseInt(
-            headResponse.headers["Content-Range"].split("/")[1]
-        )
-
-        let numChunks = (contentLength div chunkSize) + 1
-        var chunks: seq[FlowVar[DownloadChunk]]
-
-        for i in 0 ..< numChunks:
-            let start = i * chunkSize
-            var ender = (i + 1) * chunkSize - 1
-            if ender >= contentLength:
-                ender = contentLength - 1
-            chunks.add(spawn downloadChunk(downloadUrl, start, ender))
 
         var outputStream = newFileStream(outputPath, fmWrite)
-
         if outputStream == nil:
             raise newException(IOError, "Unable to open output file")
-
         defer: outputStream.close()
 
-        var totalBytesWritten: int64 = 0
+        var body: string
+        if apiKey.len > 0 and postBody != nil:
+            logInfo("Using POST request with API key")
+            body = postWithApiKey(downloadUrl, apiKey, postBody)
+        else:
+            logInfo("Using fallback GET request")
+            body = client.getContent(downloadUrl)
 
-        for chunkFv in chunks:
-            let chunk = ^chunkFv
-            outputStream.write(chunk.data)
-            totalBytesWritten += chunk.data.len
-            logInfo(
-              fmt"Downloaded {totalBytesWritten}/{contentLength} bytes ({(totalBytesWritten.float / contentLength.float * 100):0.2f}%)"
-            )
-
-        logInfo(fmt"Downloaded stream to {outputPath}")
+        outputStream.write(body)
+        logInfo(fmt"Downloaded full stream to {outputPath}")
 
     except HttpRequestError as e:
         logError("Error downloading stream: " & e.msg)
-
+    except IOError as e:
+        logError("IO error while saving stream: " & e.msg)
 
 proc getInnerStreamData*(url: string): VideoInfo =
     ## Get the corresponding VideoInfo given the video URL
@@ -373,4 +349,5 @@ proc downloadInnerStream*(url: string, isAudio: bool) =
             removeFile(tempVideoName)
             removeFile(tempAudioName)
         else:
+
             downloadStream(downloadUrl, videoName)
