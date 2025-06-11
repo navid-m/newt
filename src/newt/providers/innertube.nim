@@ -131,8 +131,6 @@ proc downloadStream*(
   apiKey: string = "",
   postBody: JsonNode = nil
 ) =
-    echo downloadUrl
-    echo "yo"
     echo "dl url is: ", downloadUrl
     ## Download the stream (chunked if supported, else fallback to GET/POST)
     try:
@@ -204,7 +202,6 @@ proc getInnerStreamData*(url: string): VideoInfo =
 
     proc populateFormatsViaIdentifier(formatLookupIdentifier: string) =
         for format in vidInf["streamingData"][formatLookupIdentifier].items:
-            echo format
             var audioSampleRate = 0
             var audioChannels = 0
             var audioQuality = "N/A"
@@ -268,7 +265,7 @@ proc getInnerStreamData*(url: string): VideoInfo =
                     let signatureCipher = format["signatureCipher"].getStr
                     videoUrl = parseSignatureCipher(signatureCipher)
                 except:
-                    echo "Warning: Could not extract URL from format"
+                    discard
 
             mediaSeq.add(MediaFormat(
               itag: format["itag"].getInt,
