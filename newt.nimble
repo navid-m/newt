@@ -17,3 +17,5 @@ task make, "Build the project in release mode":
 
 task dev, "Build the project in dev mode":
   exec "nimble build -d:ssl"
+
+requires "htmlparser >= 0.1.0"
