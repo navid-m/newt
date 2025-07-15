@@ -45,7 +45,7 @@ proc randString(alphabet: string, n: int): string =
 
 
 proc urlBase64*(data: seq[byte]): string =
-    var b64 = encode(data) # standard Base64
+    var b64 = encode(data)
     b64 = b64.replace("+", "-").replace("/", "_")
     while b64.endsWith("="):
         b64.setLen(b64.len - 1)
