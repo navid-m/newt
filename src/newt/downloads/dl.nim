@@ -33,6 +33,7 @@ proc downloadYtStreamByFormat*(
 
 proc downloadBestYtVideo*(url: string) =
     ## This finds the best audio and video stream and merges them using FFMPEG.
+    ##
     ## Requires FFMPEG to be installed.
     useHighQualityVideoMerging(true)
     downloadYtVideo(url)
